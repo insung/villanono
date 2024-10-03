@@ -1,6 +1,12 @@
+import os
+
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+
+from main import file_path
+
+current_path = os.getcwd()
 
 st.set_page_config(
     page_title="빌라 노노 | 베타버전",
@@ -14,17 +20,21 @@ st.error(
     "이 사이트의 데이터는 국토교통부 실거래가 공개시스템의 연립/다세대 데이터를 토대로 만들어졌습니다. ([출처](https://rt.molit.go.kr/pt/xls/xls.do?mobileAt=))"
 )
 st.success(
-    "서울시 서대문구 북가좌동 2022년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
+    "서울시 서대문구 북가좌동 2020년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
     icon="🔥",
 )
 st.divider()
 
-df_all = pd.read_csv("data\\temp2\\all_2022_2024_서울특별시 서대문구 북가좌동.csv")
-df_large = pd.read_csv("data\\temp2\\large_2022_2024_서울특별시 서대문구 북가좌동.csv")
-df_medium = pd.read_csv(
-    "data\\temp2\\medium_2022_2024_서울특별시 서대문구 북가좌동.csv"
+df_all = pd.read_csv(os.path.join(current_path, "data", "temp2", f"all_{file_path}"))
+df_large = pd.read_csv(
+    os.path.join(current_path, "data", "temp2", f"large_{file_path}")
 )
-df_small = pd.read_csv("data\\temp2\\small_2022_2024_서울특별시 서대문구 북가좌동.csv")
+df_medium = pd.read_csv(
+    os.path.join(current_path, "data", "temp2", f"medium_{file_path}")
+)
+df_small = pd.read_csv(
+    os.path.join(current_path, "data", "temp2", f"small_{file_path}")
+)
 
 col1, col2, col3 = st.columns(3)
 

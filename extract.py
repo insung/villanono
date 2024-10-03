@@ -2,10 +2,6 @@ import pandas
 
 from util import read_original_file, split_division
 
-begin_year = 2022
-end_year = 2024
-selected_division = "서울특별시 서대문구 북가좌동"
-
 # splits = "서울특별시 성북구 정릉동".split(" ")
 # makedirs_nested("data/division", splits)
 
@@ -17,7 +13,7 @@ def extract_original_data(
 ):
     original_data_list = []
 
-    for i in range(begin_year, end_year):
+    for i in range(begin_year, end_year + 1):
         df1 = read_original_file(f"data\\original\\매매\\{i}_연립다세대(매매).csv")
         df2 = df1.query(f"시군구 == '{selected_division}'")
 
@@ -47,13 +43,10 @@ def extract_division_data(
 ):
     groupby_divison_list = set()
 
-    for i in range(begin_year, end_year):
+    for i in range(begin_year, end_year + 1):
         df1 = read_original_file(f"data\\original\\매매\\{i}_연립다세대(매매).csv")
         groupby_divison = df1["시군구"].unique().tolist()
         groupby_divison_list.update(groupby_divison)
 
     division_df = split_division(groupby_divison_list)
     division_df.to_csv(temp_division_file)
-
-
-extract_original_data(begin_year, end_year, selected_division)
