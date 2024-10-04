@@ -109,13 +109,19 @@ def makedirs_nested(base_path: str, dirs: list):
 
 def split_division(groupby_division: set) -> DataFrame:
     si = []
-    gun = []
     gu = []
+    dong = []
     for division in groupby_division:
         splits = division.split(" ")
         si.append(splits[0])
-        gun.append(splits[1])
-        gu.append(splits[2])
+        gu.append(splits[1])
+        dong.append(splits[2])
 
-    df = pandas.DataFrame(list(zip(si, gun, gu)), columns=["시", "군", "구"])
+    df = pandas.DataFrame(list(zip(si, gu, dong)), columns=["시", "군", "구"])
     return df
+
+
+def get_data_file_path(
+    begin_year: int, end_year: int, si: str, gu: str, dong: str
+) -> str:
+    return f"{begin_year}_{end_year}_{si} {gu} {dong}.csv"

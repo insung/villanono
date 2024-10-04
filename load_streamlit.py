@@ -1,15 +1,13 @@
-import os
-
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
+from plotly.subplots import make_subplots
 
-from main import file_path
-
-current_path = os.getcwd()
+from load_insight import get_dataframe_for_insight
 
 st.set_page_config(
-    page_title="빌라 노노 | 베타버전",
+    page_title="빌라 실거래는 빌라 노노 | 베타버전",
     page_icon="🚀",
     # layout="wide",
     # initial_sidebar_state="expanded",
@@ -25,16 +23,6 @@ st.success(
 )
 st.divider()
 
-df_all = pd.read_csv(os.path.join(current_path, "data", "temp2", f"all_{file_path}"))
-df_large = pd.read_csv(
-    os.path.join(current_path, "data", "temp2", f"large_{file_path}")
-)
-df_medium = pd.read_csv(
-    os.path.join(current_path, "data", "temp2", f"medium_{file_path}")
-)
-df_small = pd.read_csv(
-    os.path.join(current_path, "data", "temp2", f"small_{file_path}")
-)
 
 col1, col2, col3 = st.columns(3)
 
@@ -64,14 +52,7 @@ with col3:
         label="지표:", options=choices, index=choices.index(default_value)
     )
 
-if size_selected == "전체":
-    df = df_all
-elif size_selected == "소형(60㎡미만)":
-    df = df_small
-elif size_selected == "중형(80㎡미만)":
-    df = df_medium
-else:
-    df = df_large
+df = get_dataframe_for_insight()
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 tickvals = df["계약년월"]
@@ -105,11 +86,42 @@ if selected == "종합":
         customdata=df[["평균(만원)", "최소(만원)", "최대(만원)"]].values,
     )
     st.plotly_chart(fig)
+elif selected == "거래량(건)":
+    fig = make_subplots(
+        rows=2,
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.1,
+        row_heights=[0.8, 0.2],
+        subplot_titles=("가격(만원)", "거래량(건)"),
+    )
+
+    fig.add_trace(go.Scatter(x=df["계약년월"], y=df["평균(만원)"]), row=1, col=1)
+
+    fig.add_trace(go.Bar(x=df["계약년월"], y=df["거래량(건)"]), row=2, col=1)
+    fig.update_layout(height=600, showlegend=False)
+    st.plotly_chart(fig, use_container_width=True)
 else:
     fig = px.line(df, x="계약년월", y=selected)
     fig.update_xaxes(type="category", tickvals=tickvals, ticktext=ticktext)
     fig.update_yaxes(tickformat=",.0f")
-    # st.line_chart(df, x="계약년월", y=selected)
+
+    fig.update_layout(
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=list(
+                    [
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(step="all"),
+                    ]
+                )
+            ),
+            rangeslider=dict(visible=True),
+            type="date",
+        )
+    )
+
     st.plotly_chart(fig)
 
 
