@@ -5,18 +5,36 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from load_insight import get_dataframe_for_insight
+from util import get_data_file_path
 
+#### variables ####
+begin_year = 2020
+end_year = 2024
+si = "서울특별시"
+gu = "서대문구"
+dong = "북가좌동"
+
+file_path = get_data_file_path(begin_year, end_year, si, gu, dong)
+
+#### config ####
 st.set_page_config(
-    page_title="빌라 실거래는 빌라 노노 | 베타버전",
+    page_title="빌라 실거래가 검색은 빌라 노노 | 베타버전",
     page_icon="🚀",
     # layout="wide",
     # initial_sidebar_state="expanded",
 )
 
-st.header("안녕하세요! 빌라 노노입니다. ✨")
-st.error(
-    "이 사이트의 데이터는 국토교통부 실거래가 공개시스템의 연립/다세대 데이터를 토대로 만들어졌습니다. ([출처](https://rt.molit.go.kr/pt/xls/xls.do?mobileAt=))"
+#### sidebar ####
+st.sidebar.error(
+    "이 사이트는 국토교통부 실거래가 공개시스템의 데이터로 만들어졌습니다. ([출처](https://rt.molit.go.kr/pt/xls/xls.do?mobileAt=))"
 )
+st.sidebar.info(
+    "혹시 문의하실게 있으신가요? [여기](https://naver.me/Fjbv2rjB)를 클릭하세요!"
+)
+
+#### index page ####
+st.header("안녕하세요! 빌라 노노입니다. ✨")
+
 st.success(
     "서울시 서대문구 북가좌동 2020년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
     icon="🔥",
@@ -43,7 +61,7 @@ choices = [
 size_choices = ["전체", "소형(60㎡미만)", "중형(80㎡미만)", "대형(80㎡이상)"]
 
 with col1:
-    size_selected = st.selectbox(
+    selected_size = st.selectbox(
         label="면적:", options=size_choices, index=size_choices.index("전체")
     )
 
@@ -52,7 +70,7 @@ with col3:
         label="지표:", options=choices, index=choices.index(default_value)
     )
 
-df = get_dataframe_for_insight()
+df = get_dataframe_for_insight(begin_year, end_year, si, gu, dong, selected_size)
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 tickvals = df["계약년월"]
@@ -130,7 +148,3 @@ else:
 
 # st.write(df["계약년월"].min(), df["계약년월"].max())
 # print(type(df["계약년월"].min()))
-
-st.divider()
-
-st.info("혹시 문의하실게 있으신가요? [여기](https://naver.me/Fjbv2rjB)를 클릭하세요!")
