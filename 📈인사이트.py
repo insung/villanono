@@ -5,6 +5,7 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from load_insight import get_dataframe_for_insight
+from sidebar import get_sidebar
 from util import get_data_file_path
 
 #### variables ####
@@ -25,12 +26,7 @@ st.set_page_config(
 )
 
 #### sidebar ####
-st.sidebar.error(
-    "이 사이트는 국토교통부 실거래가 공개시스템의 데이터로 만들어졌습니다. ([출처](https://rt.molit.go.kr/pt/xls/xls.do?mobileAt=))"
-)
-st.sidebar.info(
-    "혹시 문의하실게 있으신가요? [여기](https://naver.me/Fjbv2rjB)를 클릭하세요!"
-)
+get_sidebar(st)
 
 #### index page ####
 st.header("안녕하세요! 빌라 노노입니다. ✨")
