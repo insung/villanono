@@ -1,0 +1,35 @@
+{
+    "containerDefinitions": [
+        {
+            "name": "villanono",
+            "image": "468917192189.dkr.ecr.ap-northeast-2.amazonaws.com/villanono:latest",
+            "cpu": 256,
+            "memoryReservation": 512,
+            "portMappings": [
+                {
+                    "containerPort": 8501,
+                    "hostPort": 0
+                }
+            ],
+            "essential": true,
+            "environment": [],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "systemControls": [],
+            "links": []
+        }
+    ],
+    "family": "villanono",
+    "executionRoleArn": "arn:aws:iam::468917192189:role/ecsServiceExecutionRole",
+    "volumes": [],
+    "placementConstraints": [],
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "cpu": "352",
+    "memory": "896",
+    "runtimePlatform": {
+        "operatingSystemFamily": "LINUX"
+    }
+}
