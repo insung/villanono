@@ -13,7 +13,7 @@ def get_dataframe_for_insight(
 ) -> DataFrame:
     file_path_prefix = "all"
     if selected_size == "소형(60㎡미만)":
-        file_path_prefix = "small]"
+        file_path_prefix = "small"
     elif selected_size == "중형(80㎡미만)":
         file_path_prefix = "medium"
     elif selected_size == "대형(80㎡이상)":

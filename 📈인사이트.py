@@ -36,31 +36,25 @@ st.success(
 )
 st.divider()
 
-
 col1, col2, col3, col4 = st.columns(4)
-
-default_value = "거래량(건)"
-
-choices = [
-    "거래량(건)",
-    "종합",
-    "평균(만원)",
-    "표준편차(만원)",
-    "최소(만원)",
-    "25%",
-    "50%",
-    "75%",
-    "최대(만원)",
-]
 
 size_choices = ["전체", "소형(60㎡미만)", "중형(80㎡미만)", "대형(80㎡이상)"]
 
 today = datetime.datetime.today()
 three_months_ago = today - datetime.timedelta(days=90)
 
+with col1:
+    st.selectbox(label="시", options=["서울특별시"])
+
+with col2:
+    st.selectbox(label="구", options=["서대문구"])
+
+with col3:
+    st.selectbox(label="동", options=["북가좌동"])
+
 with col4:
     selected_size = st.selectbox(
-        label="면적:", options=size_choices, index=size_choices.index("전체")
+        label="면적", options=size_choices, index=size_choices.index("전체")
     )
 
 df = get_dataframe_for_insight(begin_year, end_year, si, gu, dong, selected_size)
@@ -73,7 +67,7 @@ fig = make_subplots(
     shared_xaxes=True,
     vertical_spacing=0.1,
     row_heights=[0.8, 0.2],
-    subplot_titles=("가격(만원)", "거래량(건)"),
+    subplot_titles=("평균(만원)", "거래량(건)"),
 )
 
 fig.add_trace(
@@ -101,22 +95,7 @@ fig.update_layout(
     height=600,
     showlegend=False,
     xaxis=dict(
-        rangeselector=dict(
-            buttons=list(
-                [
-                    dict(count=1, label="1년", step="year", stepmode="backward"),
-                    dict(count=3, label="3년", step="year", stepmode="backward"),
-                    dict(count=10, label="10년", step="year", stepmode="backward"),
-                    dict(step="all", label="전체", visible=False),
-                ]
-            )
-        ),
         rangeslider=dict(visible=False),
-        type="date",
-        range=[
-            three_months_ago.strftime("%Y-%m-%d"),
-            today.strftime("%Y-%m-%d"),
-        ],  # 3년 범위 설정
     ),
 )
 st.plotly_chart(fig, use_container_width=True)
