@@ -19,7 +19,7 @@ file_path = get_data_file_path(begin_year, end_year, si, gu, dong)
 
 #### config ####
 st.set_page_config(
-    page_title="빌라 실거래가 검색은 빌라 노노 | 베타버전",
+    page_title="빌라 실거래 검색은 빌라 노노 | 베타버전",
     page_icon="🚀",
     # layout="wide",
     # initial_sidebar_state="expanded",
@@ -29,16 +29,14 @@ st.set_page_config(
 get_sidebar(st)
 
 #### index page ####
-st.header("안녕하세요! 빌라 노노입니다. ✨")
-
 st.success(
-    "서울시 서대문구 북가좌동 2020년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
+    "2020년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
     icon="🔥",
 )
 st.divider()
 
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 default_value = "거래량(건)"
 
