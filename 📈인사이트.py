@@ -6,7 +6,7 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from load_insight import get_dataframe_for_insight
-from sidebar import get_sidebar
+from sidebar import add_sidebar
 from util import get_data_file_path
 
 #### variables ####
@@ -27,7 +27,7 @@ st.set_page_config(
 )
 
 #### sidebar ####
-get_sidebar(st)
+add_sidebar(st)
 
 #### index page ####
 st.success(
@@ -97,5 +97,6 @@ fig.update_layout(
     xaxis=dict(
         rangeslider=dict(visible=False),
     ),
+    # hovermode="x unified",
 )
 st.plotly_chart(fig, use_container_width=True)
