@@ -108,10 +108,44 @@ elif selected == "거래량(건)":
         subplot_titles=("가격(만원)", "거래량(건)"),
     )
 
-    fig.add_trace(go.Scatter(x=df["계약년월"], y=df["평균(만원)"]), row=1, col=1)
-
-    fig.add_trace(go.Bar(x=df["계약년월"], y=df["거래량(건)"]), row=2, col=1)
-    fig.update_layout(height=600, showlegend=False)
+    fig.add_trace(
+        go.Scatter(
+            x=df["계약년월"],
+            y=df["평균(만원)"],
+            hovertemplate="%{x|%Y-%m} - %{y}만원",
+            name="",
+        ),
+        row=1,
+        col=1,
+    )
+    fig.add_trace(
+        go.Bar(
+            x=df["계약년월"],
+            y=df["거래량(건)"],
+            hovertemplate="%{x|%Y-%m} - %{y}건",
+            name="",
+        ),
+        row=2,
+        col=1,
+    )
+    fig.update_yaxes(tickformat=",.0f")
+    fig.update_layout(
+        height=600,
+        showlegend=False,
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=list(
+                    [
+                        dict(count=3, label="3년", step="year", stepmode="backward"),
+                        dict(count=10, label="10년", step="year", stepmode="backward"),
+                        dict(step="전체"),
+                    ]
+                )
+            ),
+            rangeslider=dict(visible=False),
+            type="date",
+        ),
+    )
     st.plotly_chart(fig, use_container_width=True)
 else:
     fig = px.line(df, x="계약년월", y=selected)
@@ -123,13 +157,14 @@ else:
             rangeselector=dict(
                 buttons=list(
                     [
-                        dict(count=1, label="1m", step="month", stepmode="backward"),
-                        dict(count=6, label="6m", step="month", stepmode="backward"),
-                        dict(step="all"),
+                        dict(count=1, label="1년", step="year", stepmode="backward"),
+                        dict(count=3, label="3년", step="year", stepmode="backward"),
+                        dict(count=10, label="10년", step="year", stepmode="backward"),
+                        dict(step="all", label="전체", visible=False),
                     ]
                 )
             ),
-            rangeslider=dict(visible=True),
+            rangeslider=dict(visible=False),
             type="date",
         )
     )
