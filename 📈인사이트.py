@@ -10,6 +10,9 @@ from sidebar import add_sidebar
 from util import get_data_file_path
 
 #### variables ####
+today = datetime.datetime.today()
+three_months_ago = today - datetime.timedelta(days=90)
+
 begin_year = 2020
 end_year = 2024
 si = "서울특별시"
@@ -26,6 +29,7 @@ st.set_page_config(
     # initial_sidebar_state="expanded",
 )
 
+
 #### sidebar ####
 add_sidebar(st)
 
@@ -39,9 +43,6 @@ st.divider()
 col1, col2, col3, col4 = st.columns(4)
 
 size_choices = ["전체", "소형(60㎡미만)", "중형(80㎡미만)", "대형(80㎡이상)"]
-
-today = datetime.datetime.today()
-three_months_ago = today - datetime.timedelta(days=90)
 
 with col1:
     st.selectbox(label="시", options=["서울특별시"])
@@ -58,6 +59,23 @@ with col4:
     )
 
 df = get_dataframe_for_insight(begin_year, end_year, si, gu, dong, selected_size)
+
+b_col1, b_col2, b_col3, b_col4, b_col5, b_col6, b_col7 = st.columns(7)
+
+if b_col3.button("1년", use_container_width=True):
+    one_year = (today - datetime.timedelta(days=365)).strftime("%Y%m")
+    df = df.query(f"계약년월 > {one_year}")
+if b_col4.button("3년", use_container_width=True):
+    three_year = (today - datetime.timedelta(days=1095)).strftime("%Y%m")
+    df = df.query(f"계약년월 > {three_year}")
+if b_col5.button("5년", use_container_width=True):
+    five_year = (today - datetime.timedelta(days=1825)).strftime("%Y%m")
+    df = df.query(f"계약년월 > {five_year}")
+if b_col6.button("10년", use_container_width=True):
+    temp_year = (today - datetime.timedelta(days=3650)).strftime("%Y%m")
+    df = df.query(f"계약년월 > {temp_year}")
+if b_col7.button("전체", use_container_width=True):
+    df = df.query(f"계약년월 > {1970}")
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 
