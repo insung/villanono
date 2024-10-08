@@ -1,14 +1,17 @@
+import os
+from os import path
+
 import pandas
 
 from util import buysell_columns, buysell_describe_columns
 
-# df_division = pandas.read_csv(temp_division_file)
-# print(df_division.head())
+__output_path = path.join("data", "output")
 
 
-def transfer_groupby_yyyyMM(begin_year: int, end_year: int, selected_division: str):
-    file_path = f"{begin_year}_{end_year}_{selected_division}.csv"
-    df = pandas.read_csv(f"data\\temp\\{file_path}")
+def transfer_groupby_yyyyMM(
+    temp_file_path: str, si: str, gu: str, dong: str, year: int
+):
+    df = pandas.read_csv(temp_file_path)
     df.columns = buysell_columns
 
     aggregate = {
@@ -30,31 +33,44 @@ def transfer_groupby_yyyyMM(begin_year: int, end_year: int, selected_division: s
     all_group.columns = buysell_describe_columns
     all_group["평균(만원)"] = all_group["평균(만원)"].round(2)
 
-    small_group = (
-        df.query("전용면적_그룹 == '소형(60미만)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    small_group.columns = buysell_describe_columns
-    small_group["평균(만원)"] = small_group["평균(만원)"].round(2)
+    # under_20 = (
+    #     df.query("전용면적_그룹 == '10평대 (33㎡미만)'")
+    #     .groupby(["계약년월"], as_index=False)
+    #     .agg(aggregate)
+    # )
+    # under_20.columns = buysell_describe_columns
+    # under_20["평균(만원)"] = under_20["평균(만원)"].round(2)
 
-    medium_group = (
-        df.query("전용면적_그룹 == '중형(80미만)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    medium_group.columns = buysell_describe_columns
-    medium_group["평균(만원)"] = medium_group["평균(만원)"].round(2)
+    # under_30 = (
+    #     df.query("전용면적_그룹 == '20평대 (66㎡미만)'")
+    #     .groupby(["계약년월"], as_index=False)
+    #     .agg(aggregate)
+    # )
+    # under_30.columns = buysell_describe_columns
+    # under_30["평균(만원)"] = under_30["평균(만원)"].round(2)
 
-    large_group = (
-        df.query("전용면적_그룹 == '대형(80이상)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    large_group.columns = buysell_describe_columns
-    large_group["평균(만원)"] = large_group["평균(만원)"].round(2)
+    # under_40 = (
+    #     df.query("전용면적_그룹 == '30평대 (99㎡미만)'")
+    #     .groupby(["계약년월"], as_index=False)
+    #     .agg(aggregate)
+    # )
+    # under_40.columns = buysell_describe_columns
+    # under_40["평균(만원)"] = under_40["평균(만원)"].round(2)
 
-    all_group.to_csv(f"data\\temp2\\all_{file_path}", index=False)
-    small_group.to_csv(f"data\\temp2\\small_{file_path}", index=False)
-    medium_group.to_csv(f"data\\temp2\\medium_{file_path}", index=False)
-    large_group.to_csv(f"data\\temp2\\large_{file_path}", index=False)
+    # over_40 = (
+    #     df.query("전용면적_그룹 == '40평대 이상 (99㎡이상)'")
+    #     .groupby(["계약년월"], as_index=False)
+    #     .agg(aggregate)
+    # )
+    # over_40.columns = buysell_describe_columns
+    # over_40["평균(만원)"] = over_40["평균(만원)"].round(2)
+
+    dir = path.join(__output_path, si, gu, dong)
+
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    all_group.to_csv(path.join(dir, f"all_{year}.csv"), index=False)
+    # under_20.to_csv(path.join(dir, f"small_{year}.csv"), index=False)
+    # under_30.to_csv(path.join(dir, f"medium_{year}.csv"), index=False)
+    # under_40.to_csv(path.join(dir, f"large_{year}.csv"), index=False)

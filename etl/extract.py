@@ -1,52 +1,62 @@
+import os
+from os import path
+
 import pandas
 
-from util import read_original_file, split_division
+from util import merge_division_data, read_original_file
 
-# splits = "서울특별시 성북구 정릉동".split(" ")
-# makedirs_nested("data/division", splits)
+__temp_output_path = path.join("data", "temp")
 
 
 def extract_original_data(
-    begin_year: int,
-    end_year: int,
-    selected_division: str = "서울특별시 서대문구 북가좌동",
-):
+    data_file_path: str,
+    year: int,
+    si: str,
+    gu: str,
+    dong: str,
+) -> str:
     original_data_list = []
+    df1 = read_original_file(data_file_path)
+    df2 = df1.query(f"시군구 == '{si} {gu} {dong}'")
 
-    for i in range(begin_year, end_year + 1):
-        df1 = read_original_file(f"data\\original\\매매\\{i}_연립다세대(매매).csv")
-        df2 = df1.query(f"시군구 == '{selected_division}'")
+    df2["거래금액(만원)"] = df2["거래금액(만원)"].str.replace(",", "").astype(int)
 
-        df2["거래금액(만원)"] = df2["거래금액(만원)"].str.replace(",", "").astype(int)
+    df2.loc[:, "계약일자"] = df2["계약년월"].astype(str) + df2["계약일"].astype(
+        str
+    ).str.zfill(2)
+    df2["계약일자"] = pandas.to_datetime(df2["계약일자"], format="%Y%m%d")
 
-        df2.loc[:, "계약일자"] = df2["계약년월"].astype(str) + df2["계약일"].astype(
-            str
-        ).str.zfill(2)
-        df2["계약일자"] = pandas.to_datetime(df2["계약일자"], format="%Y%m%d")
+    col_name = df2.columns.values[6]  # 전용면적
 
-        col_name = df2.columns.values[6]
+    size_ranges = [0, 33, 66, 99, 1653]
+    size_labels = [
+        "10평대 (33㎡미만)",
+        "20평대 (66㎡미만)",
+        "30평대 (99㎡미만)",
+        "40평대 이상 (99㎡이상)",
+    ]
 
-        size_ranges = [0, 60, 80, 3000]
-        size_labels = ["소형(60미만)", "중형(80미만)", "대형(80이상)"]
+    df2["전용면적_그룹"] = pandas.cut(
+        df2[col_name], bins=size_ranges, labels=size_labels, right=False
+    )
+    original_data_list.append(df2)
 
-        df2["전용면적_그룹"] = pandas.cut(
-            df2[col_name], bins=size_ranges, labels=size_labels, right=False
-        )
-        original_data_list.append(df2)
+    dir = path.join(__temp_output_path, si, gu, dong)
+    temp_file_path = path.join(dir, f"{year}.csv")
 
-    temp_file = f"data\\temp\\{begin_year}_{end_year}_{selected_division}.csv"
-    pandas.concat(original_data_list).to_csv(temp_file)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    pandas.concat(original_data_list).to_csv(temp_file_path)
+    return temp_file_path
 
 
 def extract_division_data(
-    begin_year: int, end_year: int, temp_division_file: str = "data\\temp\\division.csv"
-):
-    groupby_divison_list = set()
-
-    for i in range(begin_year, end_year + 1):
-        df1 = read_original_file(f"data\\original\\매매\\{i}_연립다세대(매매).csv")
-        groupby_divison = df1["시군구"].unique().tolist()
-        groupby_divison_list.update(groupby_divison)
-
-    division_df = split_division(groupby_divison_list)
-    division_df.to_csv(temp_division_file)
+    data_file_path: str, output_file_path: str, column: str = "시군구"
+) -> str:
+    groupby_divison_set = set()
+    original_data_df = read_original_file(data_file_path)
+    groupby_divison = original_data_df[column].unique().tolist()
+    groupby_divison_set.update(groupby_divison)
+    output_file_path = merge_division_data(groupby_divison, output_file_path)
+    return output_file_path

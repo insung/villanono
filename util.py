@@ -1,5 +1,6 @@
 import os
 import uuid
+from genericpath import exists
 
 import pandas
 from pandas import DataFrame, Series
@@ -107,7 +108,7 @@ def makedirs_nested(base_path: str, dirs: list):
     makedirs_nested(current_dir, dirs[1:])
 
 
-def split_division(groupby_division: set) -> DataFrame:
+def to_dataframe_by_set(groupby_division: set) -> DataFrame:
     si = []
     gu = []
     dong = []
@@ -119,6 +120,21 @@ def split_division(groupby_division: set) -> DataFrame:
 
     df = pandas.DataFrame(list(zip(si, gu, dong)), columns=["시", "군", "구"])
     return df
+
+
+def merge_division_data(groupby_divison_set: set, output_file_path: str) -> str:
+    output_division_file_path = os.path.join(output_file_path, "division.csv")
+    result_df = to_dataframe_by_set(groupby_divison_set)
+
+    if exists(output_division_file_path):
+        read_df = pandas.read_csv(output_division_file_path)
+        result_df = result_df.astype(read_df.dtypes.to_dict())
+        common_columns = ["시", "군", "구"]  # 공통 열 이름 리스트
+        merged_df = read_df.merge(result_df, on=common_columns, how="outer")
+        result_df = merged_df.drop_duplicates()
+
+    result_df.to_csv(output_division_file_path, index=False)
+    return output_division_file_path
 
 
 def get_data_file_path(
