@@ -35,7 +35,7 @@ add_sidebar(st)
 
 #### index page ####
 st.success(
-    "2020년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
+    "2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
     icon="🔥",
 )
 st.divider()
@@ -75,7 +75,7 @@ if b_col6.button("10년", use_container_width=True):
     temp_year = (today - datetime.timedelta(days=3650)).strftime("%Y%m")
     df = df.query(f"계약년월 > {temp_year}")
 if b_col7.button("전체", use_container_width=True):
-    df = df.query(f"계약년월 > {1970}")
+    df = df.query(f"계약년월 > {2006}")
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 

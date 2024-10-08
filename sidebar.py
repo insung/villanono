@@ -6,7 +6,7 @@ __footer_style = """
     position: fixed;
     bottom: 0;
     width: 100%;
-    background-color: #f1f1f1;
+    background-color: #f0f2f6;
     color: black;
     text-align: center;
     padding: 10px;
