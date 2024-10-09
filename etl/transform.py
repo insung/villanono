@@ -6,6 +6,20 @@ from util import buysell_columns, buysell_describe_columns, get_output_file_path
 def transfer_groupby_yyyyMM(
     temp_file_path: str, si: str, gu: str, dong: str, year: int
 ):
+    selected_sizes = {
+        "all": None,
+        "under_20": "10평대",
+        "under_30": "20평대",
+        "under_40": "30평대",
+        "over_40": "40평대 이상",
+    }
+
+    for key, value in selected_sizes.items():
+        df = __file_to_dataframe(temp_file_path, value)
+        df.to_csv(get_output_file_path(si, gu, dong, year, key), index=False)
+
+
+def __file_to_dataframe(temp_file_path: str, selected_size: str | None):
     df = pandas.read_csv(temp_file_path)
     df.columns = buysell_columns
 
@@ -22,47 +36,14 @@ def transfer_groupby_yyyyMM(
         ]
     }
 
-    # print(df.head())
-    # temp1 = df.query("전용면적 < 50")
-    all_group = df.groupby(["계약년월"], as_index=False).agg(aggregate)
-    all_group.columns = buysell_describe_columns
-    all_group["평균(만원)"] = all_group["평균(만원)"].round(2)
-
-    under_20 = (
-        df.query("전용면적_그룹 == '10평대 (33㎡미만)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    under_20.columns = buysell_describe_columns
-    under_20["평균(만원)"] = under_20["평균(만원)"].round(2)
-
-    under_30 = (
-        df.query("전용면적_그룹 == '20평대 (66㎡미만)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    under_30.columns = buysell_describe_columns
-    under_30["평균(만원)"] = under_30["평균(만원)"].round(2)
-
-    under_40 = (
-        df.query("전용면적_그룹 == '30평대 (99㎡미만)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    under_40.columns = buysell_describe_columns
-    under_40["평균(만원)"] = under_40["평균(만원)"].round(2)
-
-    over_40 = (
-        df.query("전용면적_그룹 == '40평대 이상 (99㎡이상)'")
-        .groupby(["계약년월"], as_index=False)
-        .agg(aggregate)
-    )
-    over_40.columns = buysell_describe_columns
-    over_40["평균(만원)"] = over_40["평균(만원)"].round(2)
-
-    all_output_path = get_output_file_path(si, gu, dong, year)
-
-    all_group.to_csv(all_output_path, index=False)
-    # under_20.to_csv(path.join(dir, f"small_{year}.csv"), index=False)
-    # under_30.to_csv(path.join(dir, f"medium_{year}.csv"), index=False)
-    # under_40.to_csv(path.join(dir, f"large_{year}.csv"), index=False)
+    if selected_size is None:
+        temp = df.groupby(["계약년월"], as_index=False).agg(aggregate)
+    else:
+        temp = (
+            df.query(f"전용면적_그룹 == '{selected_size}'")
+            .groupby(["계약년월"], as_index=False)
+            .agg(aggregate)
+        )
+    temp.columns = buysell_describe_columns
+    temp["평균(만원)"] = temp["평균(만원)"].round(2)
+    return temp
