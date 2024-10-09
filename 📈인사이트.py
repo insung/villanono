@@ -5,21 +5,17 @@ import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
 
-from load_insight import get_dataframe_for_insight
 from sidebar import add_sidebar
-from util import get_data_file_path
+from util import get_dataframe_for_insight
 
 #### variables ####
 today = datetime.datetime.today()
-three_months_ago = today - datetime.timedelta(days=90)
+end_year: int = int(today.year)
+begin_date = today - datetime.timedelta(days=365)
 
-begin_year = 2020
-end_year = 2024
 si = "서울특별시"
 gu = "서대문구"
 dong = "북가좌동"
-
-file_path = get_data_file_path(begin_year, end_year, si, gu, dong)
 
 #### config ####
 st.set_page_config(
@@ -42,7 +38,13 @@ st.divider()
 
 col1, col2, col3, col4 = st.columns(4)
 
-size_choices = ["전체", "소형(60㎡미만)", "중형(80㎡미만)", "대형(80㎡이상)"]
+size_choices = [
+    "전체",
+    "10평대 (33㎡미만)",
+    "20평대 (66㎡미만)",
+    "30평대 (99㎡미만)",
+    "40평대 이상 (99㎡이상)",
+]
 
 with col1:
     st.selectbox(label="시", options=["서울특별시"])
@@ -58,24 +60,24 @@ with col4:
         label="면적", options=size_choices, index=size_choices.index("전체")
     )
 
-df = get_dataframe_for_insight(begin_year, end_year, si, gu, dong, selected_size)
-
 b_col1, b_col2, b_col3, b_col4, b_col5, b_col6, b_col7 = st.columns(7)
 
 if b_col3.button("1년", use_container_width=True):
-    one_year = (today - datetime.timedelta(days=365)).strftime("%Y%m")
-    df = df.query(f"계약년월 > {one_year}")
+    begin_date = today - datetime.timedelta(days=365)
 if b_col4.button("3년", use_container_width=True):
-    three_year = (today - datetime.timedelta(days=1095)).strftime("%Y%m")
-    df = df.query(f"계약년월 > {three_year}")
+    begin_date = today - datetime.timedelta(days=1095)
 if b_col5.button("5년", use_container_width=True):
-    five_year = (today - datetime.timedelta(days=1825)).strftime("%Y%m")
-    df = df.query(f"계약년월 > {five_year}")
+    begin_date = today - datetime.timedelta(days=1825)
 if b_col6.button("10년", use_container_width=True):
-    temp_year = (today - datetime.timedelta(days=3650)).strftime("%Y%m")
-    df = df.query(f"계약년월 > {temp_year}")
+    begin_date = today - datetime.timedelta(days=3650)
 if b_col7.button("전체", use_container_width=True):
-    df = df.query(f"계약년월 > {2006}")
+    begin_date = datetime.datetime(2006, 1, 1)
+
+begin_yyyyMM = int(begin_date.strftime("%Y%m"))
+begin_year = int(begin_date.year)
+
+df = get_dataframe_for_insight(begin_year, end_year, si, gu, dong, selected_size)
+df = df.query(f"계약년월 > {begin_yyyyMM}")
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 
@@ -115,6 +117,6 @@ fig.update_layout(
     xaxis=dict(
         rangeslider=dict(visible=False),
     ),
-    # hovermode="x unified",
+    hovermode="x unified",
 )
 st.plotly_chart(fig, use_container_width=True)

@@ -137,7 +137,30 @@ def merge_division_data(groupby_divison_set: set, output_file_path: str) -> str:
     return output_division_file_path
 
 
-def get_data_file_path(
-    begin_year: int, end_year: int, si: str, gu: str, dong: str
+def get_output_file_path(
+    si: str, gu: str, dong: str, year: int, filename_prefix: str = "all"
 ) -> str:
-    return f"{begin_year}_{end_year}_{si} {gu} {dong}.csv"
+    dir = os.path.join("data", "output", si, gu, dong)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    return os.path.join(dir, f"{filename_prefix}_{year}.csv")
+
+
+def get_dataframe_for_insight(
+    begin_year: int, end_year: int, si: str, gu: str, dong: str, selected_size: str
+) -> DataFrame:
+    result = None
+
+    for year in range(begin_year, end_year + 1):
+        file_path = get_output_file_path(si, gu, dong, year)
+        df = pandas.read_csv(file_path)
+        if selected_size != "전체":
+            df = df[df["전용면적"] == selected_size]
+
+        if result is None:
+            result = df
+        else:
+            result = pandas.concat([result, df])
+
+    return result
