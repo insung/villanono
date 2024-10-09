@@ -16,7 +16,7 @@
             "name": "ETL Run",
             "type": "debugpy",
             "request": "launch",
-            "program": "etl/run.py ${file}",
+            "program": "etl/run.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
