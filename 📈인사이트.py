@@ -14,9 +14,11 @@ end_year: int = int(today.year)
 
 if "begin_date" not in st.session_state:
     st.session_state["begin_date"] = today - datetime.timedelta(days=365)
+    st.session_state["year_from_now"] = 1
 
 if "selected_size" not in st.session_state:
     st.session_state["selected_size"] = "all"
+    st.session_state["size_choice"] = "전체"
 
 si = "서울특별시"
 gu = "서대문구"
@@ -29,7 +31,6 @@ st.set_page_config(
     # layout="wide",
     # initial_sidebar_state="expanded",
 )
-
 
 #### sidebar ####
 add_sidebar(st)
@@ -72,20 +73,28 @@ with col4:
     size_choice = st.selectbox(
         label="면적", options=size_choices, index=size_choices.index("전체")
     )
+    st.session_state["size_choice"] = size_choice
     st.session_state["selected_size"] = selected_sizes[size_choices.index(size_choice)]
 
 b_col1, b_col2, b_col3, b_col4, b_col5, b_col6 = st.columns(6)
 
 if b_col2.button("1년", use_container_width=True):
     st.session_state["begin_date"] = today - datetime.timedelta(days=365)
+    st.session_state["year_from_now"] = 1
 if b_col3.button("3년", use_container_width=True):
     st.session_state["begin_date"] = today - datetime.timedelta(days=1095)
+    st.session_state["year_from_now"] = 3
 if b_col4.button("5년", use_container_width=True):
     st.session_state["begin_date"] = today - datetime.timedelta(days=1825)
+    st.session_state["year_from_now"] = 5
 if b_col5.button("10년", use_container_width=True):
     st.session_state["begin_date"] = today - datetime.timedelta(days=3650)
+    st.session_state["year_from_now"] = 10
 if b_col6.button("전체", use_container_width=True):
-    st.session_state["begin_date"] = datetime.datetime(2006, 1, 1)
+    datetime_2006 = datetime.datetime(2006, 1, 1)
+    st.session_state["begin_date"] = datetime_2006
+    st.session_state["year_from_now"] = (today.year - datetime_2006.year) + 1
+
 
 begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
 begin_year = int(st.session_state["begin_date"].year)
@@ -97,13 +106,19 @@ df = df.query(f"계약년월 > {begin_yyyyMM}")
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 
+sub_chart_mean = df["평균(만원)"].mean()
+sub_chart_mean_title = f"{st.session_state["size_choice"]} {st.session_state["year_from_now"]} 년간 평균 ({sub_chart_mean:,.0f} 만원)"
+
+sub_chart_count = df["거래량(건)"].sum()
+sub_chart_count_title = f"거래량 ({sub_chart_count:,.0f} 건)"
+
 fig = make_subplots(
     rows=2,
     cols=1,
     shared_xaxes=True,
     vertical_spacing=0.1,
     row_heights=[0.8, 0.2],
-    subplot_titles=("평균(만원)", "거래량(건)"),
+    subplot_titles=(sub_chart_mean_title, sub_chart_count_title),
 )
 
 fig.add_trace(
