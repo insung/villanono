@@ -2,7 +2,7 @@
     "containerDefinitions": [
         {
             "name": "villanono",
-            "image": "468917192189.dkr.ecr.ap-northeast-2.amazonaws.com/villanono:latest",
+            "image": "468917192189.dkr.ecr.ap-northeast-2.amazonaws.com/villanono:241009-02",
             "cpu": 256,
             "memoryReservation": 512,
             "portMappings": [
@@ -27,8 +27,8 @@
     "requiresCompatibilities": [
         "EC2"
     ],
-    "cpu": "352",
-    "memory": "896",
+    "cpu": "256",
+    "memory": "512",
     "runtimePlatform": {
         "operatingSystemFamily": "LINUX"
     }

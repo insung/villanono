@@ -107,7 +107,7 @@ df = df.query(f"계약년월 > {begin_yyyyMM}")
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 
 sub_chart_mean = df["평균(만원)"].mean()
-sub_chart_mean_title = f"{st.session_state["size_choice"]} {st.session_state["year_from_now"]} 년간 평균 ({sub_chart_mean:,.0f} 만원)"
+sub_chart_mean_title = f"{st.session_state["size_choice"]} 지난 {st.session_state["year_from_now"]} 년간 평균 ({sub_chart_mean:,.0f} 만원)"
 
 sub_chart_count = df["거래량(건)"].sum()
 sub_chart_count_title = f"거래량 ({sub_chart_count:,.0f} 건)"
