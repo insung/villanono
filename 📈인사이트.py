@@ -11,7 +11,12 @@ from util import get_dataframe_for_insight
 #### variables ####
 today = datetime.datetime.today()
 end_year: int = int(today.year)
-begin_date = today - datetime.timedelta(days=365)
+
+if "begin_date" not in st.session_state:
+    st.session_state["begin_date"] = today - datetime.timedelta(days=365)
+
+if "selected_size" not in st.session_state:
+    st.session_state["selected_size"] = "all"
 
 si = "서울특별시"
 gu = "서대문구"
@@ -46,6 +51,14 @@ size_choices = [
     "40평대 이상 (99㎡이상)",
 ]
 
+selected_sizes = [
+    "all",
+    "under_20",
+    "under_30",
+    "under_40",
+    "over_40",
+]
+
 with col1:
     st.selectbox(label="시", options=["서울특별시"])
 
@@ -56,27 +69,30 @@ with col3:
     st.selectbox(label="동", options=["북가좌동"])
 
 with col4:
-    selected_size = st.selectbox(
+    size_choice = st.selectbox(
         label="면적", options=size_choices, index=size_choices.index("전체")
     )
+    st.session_state["selected_size"] = selected_sizes[size_choices.index(size_choice)]
 
-b_col1, b_col2, b_col3, b_col4, b_col5, b_col6, b_col7 = st.columns(7)
+b_col1, b_col2, b_col3, b_col4, b_col5, b_col6 = st.columns(6)
 
-if b_col3.button("1년", use_container_width=True):
-    begin_date = today - datetime.timedelta(days=365)
-if b_col4.button("3년", use_container_width=True):
-    begin_date = today - datetime.timedelta(days=1095)
-if b_col5.button("5년", use_container_width=True):
-    begin_date = today - datetime.timedelta(days=1825)
-if b_col6.button("10년", use_container_width=True):
-    begin_date = today - datetime.timedelta(days=3650)
-if b_col7.button("전체", use_container_width=True):
-    begin_date = datetime.datetime(2006, 1, 1)
+if b_col2.button("1년", use_container_width=True):
+    st.session_state["begin_date"] = today - datetime.timedelta(days=365)
+if b_col3.button("3년", use_container_width=True):
+    st.session_state["begin_date"] = today - datetime.timedelta(days=1095)
+if b_col4.button("5년", use_container_width=True):
+    st.session_state["begin_date"] = today - datetime.timedelta(days=1825)
+if b_col5.button("10년", use_container_width=True):
+    st.session_state["begin_date"] = today - datetime.timedelta(days=3650)
+if b_col6.button("전체", use_container_width=True):
+    st.session_state["begin_date"] = datetime.datetime(2006, 1, 1)
 
-begin_yyyyMM = int(begin_date.strftime("%Y%m"))
-begin_year = int(begin_date.year)
+begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
+begin_year = int(st.session_state["begin_date"].year)
 
-df = get_dataframe_for_insight(begin_year, end_year, si, gu, dong, selected_size)
+df = get_dataframe_for_insight(
+    begin_year, end_year, si, gu, dong, st.session_state["selected_size"]
+)
 df = df.query(f"계약년월 > {begin_yyyyMM}")
 
 df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
