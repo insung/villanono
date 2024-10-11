@@ -154,6 +154,10 @@ def get_dataframe_for_insight(
 
     for year in range(begin_year, end_year + 1):
         file_path = get_output_file_path(si, gu, dong, year, selected_size)
+
+        if not exists(file_path):
+            continue
+
         df = pandas.read_csv(file_path)
 
         if result is None:
@@ -164,13 +168,17 @@ def get_dataframe_for_insight(
     return result
 
 
+__division_df = pandas.read_csv(
+    os.path.join("data", "output_divisions", "division.csv")
+)
+
+
 def read_divisions() -> dict:
     result = {}
 
-    division_file_path = os.path.join("data", "output_divisions", "division.csv")
-    df = pandas.read_csv(division_file_path)
-
-    for si, gu, dong in zip(df["시"], df["군"], df["구"]):
+    for si, gu, dong in zip(
+        __division_df["시"], __division_df["군"], __division_df["구"]
+    ):
         if si not in result:
             result[si] = {}
         if gu not in result[si]:
@@ -178,3 +186,25 @@ def read_divisions() -> dict:
         result[si][gu].append(dong)
 
     return result
+
+
+def get_si_options() -> list:
+    return __division_df["시"].unique().tolist()
+
+
+def get_gu_options(si: str = "서울특별시") -> list:
+    return (
+        __division_df.query(f"시 == '{si}'")
+        .sort_values(by="군", ascending=True)["군"]
+        .unique()
+        .tolist()
+    )
+
+
+def get_dong_options(gu: str = "서대문구") -> list:
+    return (
+        __division_df.query(f"군 == '{gu}'")
+        .sort_values(by="구", ascending=True)["구"]
+        .unique()
+        .tolist()
+    )

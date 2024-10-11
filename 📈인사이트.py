@@ -6,7 +6,12 @@ import streamlit as st
 from plotly.subplots import make_subplots
 
 from sidebar import add_sidebar
-from util import get_dataframe_for_insight
+from util import (
+    get_dataframe_for_insight,
+    get_dong_options,
+    get_gu_options,
+    get_si_options,
+)
 
 #### variables ####
 today = datetime.datetime.today()
@@ -20,9 +25,17 @@ if "selected_size" not in st.session_state:
     st.session_state["selected_size"] = "all"
     st.session_state["size_choice"] = "전체"
 
-si = "서울특별시"
-gu = "서대문구"
-dong = "북가좌동"
+if "selected_si" not in st.session_state:
+    st.session_state["si_list"] = get_si_options()
+
+if "selected_gu" not in st.session_state:
+    st.session_state["gu_list"] = get_gu_options()
+else:
+    selectbox_dong_index = 0
+
+if "selected_dong" not in st.session_state:
+    st.session_state["dong_list"] = get_dong_options()
+    selectbox_dong_index = st.session_state["dong_list"].index("북가좌동")
 
 #### config ####
 st.set_page_config(
@@ -60,14 +73,30 @@ selected_sizes = [
     "over_40",
 ]
 
+
 with col1:
-    st.selectbox(label="시", options=["서울특별시"])
+    st.session_state["selected_si"] = st.selectbox(
+        label="시",
+        options=st.session_state["si_list"],
+        index=st.session_state["si_list"].index("서울특별시"),
+    )
 
 with col2:
-    st.selectbox(label="구", options=["서대문구"])
+    st.session_state["selected_gu"] = st.selectbox(
+        label="구",
+        options=st.session_state["gu_list"],
+        index=st.session_state["gu_list"].index("서대문구"),
+    )
+
+    st.session_state["dong_list"] = get_dong_options(st.session_state["selected_gu"])
+
 
 with col3:
-    st.selectbox(label="동", options=["북가좌동"])
+    st.session_state["selected_dong"] = st.selectbox(
+        label="동",
+        options=st.session_state["dong_list"],
+        index=selectbox_dong_index,
+    )
 
 with col4:
     size_choice = st.selectbox(
@@ -100,54 +129,63 @@ begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
 begin_year = int(st.session_state["begin_date"].year)
 
 df = get_dataframe_for_insight(
-    begin_year, end_year, si, gu, dong, st.session_state["selected_size"]
-)
-df = df.query(f"계약년월 > {begin_yyyyMM}")
-
-df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
-
-sub_chart_mean = df["평균(만원)"].mean()
-sub_chart_mean_title = f"{st.session_state["size_choice"]} 지난 {st.session_state["year_from_now"]} 년간 평균 ({sub_chart_mean:,.0f} 만원)"
-
-sub_chart_count = df["거래량(건)"].sum()
-sub_chart_count_title = f"거래량 ({sub_chart_count:,.0f} 건)"
-
-fig = make_subplots(
-    rows=2,
-    cols=1,
-    shared_xaxes=True,
-    vertical_spacing=0.1,
-    row_heights=[0.8, 0.2],
-    subplot_titles=(sub_chart_mean_title, sub_chart_count_title),
+    begin_year,
+    end_year,
+    st.session_state["selected_si"],
+    st.session_state["selected_gu"],
+    st.session_state["selected_dong"],
+    st.session_state["selected_size"],
 )
 
-fig.add_trace(
-    go.Scatter(
-        x=df["계약년월"],
-        y=df["평균(만원)"],
-        hovertemplate="%{x|%Y-%m} - %{y}만원",
-        name="",
-    ),
-    row=1,
-    col=1,
-)
-fig.add_trace(
-    go.Bar(
-        x=df["계약년월"],
-        y=df["거래량(건)"],
-        hovertemplate="%{x|%Y-%m} - %{y}건",
-        name="",
-    ),
-    row=2,
-    col=1,
-)
-fig.update_yaxes(tickformat=",.0f")
-fig.update_layout(
-    height=600,
-    showlegend=False,
-    xaxis=dict(
-        rangeslider=dict(visible=False),
-    ),
-    hovermode="x unified",
-)
-st.plotly_chart(fig, use_container_width=True)
+if df is None:
+    st.write("데이터가 없습니다.")
+else:
+    df = df.query(f"계약년월 > {begin_yyyyMM}")
+
+    df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
+
+    sub_chart_mean = df["평균(만원)"].mean()
+    sub_chart_mean_title = f"{st.session_state["size_choice"]} 지난 {st.session_state["year_from_now"]} 년간 평균 ({sub_chart_mean:,.0f} 만원)"
+
+    sub_chart_count = df["거래량(건)"].sum()
+    sub_chart_count_title = f"거래량 ({sub_chart_count:,.0f} 건)"
+
+    fig = make_subplots(
+        rows=2,
+        cols=1,
+        shared_xaxes=True,
+        vertical_spacing=0.1,
+        row_heights=[0.8, 0.2],
+        subplot_titles=(sub_chart_mean_title, sub_chart_count_title),
+    )
+
+    fig.add_trace(
+        go.Scatter(
+            x=df["계약년월"],
+            y=df["평균(만원)"],
+            hovertemplate="%{x|%Y-%m} - %{y}만원",
+            name="",
+        ),
+        row=1,
+        col=1,
+    )
+    fig.add_trace(
+        go.Bar(
+            x=df["계약년월"],
+            y=df["거래량(건)"],
+            hovertemplate="%{x|%Y-%m} - %{y}건",
+            name="",
+        ),
+        row=2,
+        col=1,
+    )
+    fig.update_yaxes(tickformat=",.0f")
+    fig.update_layout(
+        height=600,
+        showlegend=False,
+        xaxis=dict(
+            rangeslider=dict(visible=False),
+        ),
+        hovermode="x unified",
+    )
+    st.plotly_chart(fig, use_container_width=True)
