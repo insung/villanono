@@ -162,3 +162,19 @@ def get_dataframe_for_insight(
             result = pandas.concat([result, df])
 
     return result
+
+
+def read_divisions() -> dict:
+    result = {}
+
+    division_file_path = os.path.join("data", "output_divisions", "division.csv")
+    df = pandas.read_csv(division_file_path)
+
+    for si, gu, dong in zip(df["시"], df["군"], df["구"]):
+        if si not in result:
+            result[si] = {}
+        if gu not in result[si]:
+            result[si][gu] = []
+        result[si][gu].append(dong)
+
+    return result
