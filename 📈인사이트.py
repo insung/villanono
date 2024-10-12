@@ -41,7 +41,7 @@ if "selectbox_dong_index" not in st.session_state:
 
 #### config ####
 st.set_page_config(
-    page_title="빌라 실거래 검색은 빌라 노노 | 베타버전",
+    page_title="빌라 실거래 검색은 빌라 노노",
     page_icon="🚀",
     # layout="wide",
     # initial_sidebar_state="expanded",
@@ -52,7 +52,7 @@ add_sidebar(st)
 
 #### index page ####
 st.success(
-    "2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 매매 정보입니다. 계속해서 업데이트할 예정입니다.",
+    "매매는 2006년 1월 1일 부터, 전세는 2011년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.",
     icon="🔥",
 )
 st.divider()
