@@ -5,6 +5,48 @@ from genericpath import exists
 import pandas
 from pandas import DataFrame, Series
 
+temp_output_path = os.path.join("data", "temp")
+
+size_rnages_filenames = {
+    "all": None,
+    "under_20": "10평대",
+    "under_30": "20평대",
+    "under_40": "30평대",
+    "over_40": "40평대 이상",
+}
+size_ranges = [0, 33, 66, 99, 1653]
+size_labels = [
+    "10평대",
+    "20평대",
+    "30평대",
+    "40평대 이상",
+]
+
+aggregate = {
+    "거래금액(만원)": [
+        "count",
+        "mean",
+        "std",
+        "min",
+        lambda x: x.quantile(0.25),
+        "median",
+        lambda x: x.quantile(0.75),
+        "max",
+    ]
+}
+
+__buysell_describe_columns = [
+    "계약년월",
+    "거래량(건)",
+    "평균(만원)",
+    "표준편차(만원)",
+    "최소(만원)",
+    "25%",
+    "50%",
+    "75%",
+    "최대(만원)",
+]
+
 
 def read_original_file(file_path: str, skiprows=15) -> DataFrame:
     with open(file_path, "r") as infile:
@@ -31,69 +73,6 @@ def groupby_yyyyMM(df: DataFrame):
     filtered = df[df["전월세구분"] == "전세"]
     selected = filtered[["계약년월", "보증금(만원)"]]
     return selected.groupby("계약년월")
-
-
-buysell_columns = [
-    "row_index",
-    "NO",
-    "시군구",
-    "번지",
-    "본번",
-    "부번",
-    "건물명",
-    "전용면적",
-    "대지권면적",
-    "계약년월",
-    "계약일",
-    "거래금액(만원)",
-    "층",
-    "매수자",
-    "매도자",
-    "건축년도",
-    "도로명",
-    "해제사유발생일",
-    "거래유형",
-    "중개사소재지",
-    "등기일자",
-    "계약일자",
-    "전용면적_그룹",
-]
-
-buysell_describe_columns = [
-    "계약년월",
-    "거래량(건)",
-    "평균(만원)",
-    "표준편차(만원)",
-    "최소(만원)",
-    "25%",
-    "50%",
-    "75%",
-    "최대(만원)",
-]
-
-rent_columns = [
-    "NO",
-    "시군구",
-    "번지",
-    "본번",
-    "부번",
-    "건물명",
-    "전월세구분",
-    "전용면적(㎡)",
-    "계약년월",
-    "계약일",
-    "보증금(만원)",
-    "월세금(만원)",
-    "층",
-    "건축년도",
-    "도로명",
-    "계약기간",
-    "계약구분",
-    "갱신요구권 사용",
-    "종전계약 보증금(만원)",
-    "종전계약 월세(만원)",
-    "주택유형",
-]
 
 
 def makedirs_nested(base_path: str, dirs: list):
@@ -208,3 +187,30 @@ def get_dong_options(gu: str = "서대문구") -> list:
         .unique()
         .tolist()
     )
+
+
+def file_to_dataframe(
+    temp_file_path: str, selected_size: str | None, columns: list[str]
+):
+    df = pandas.read_csv(temp_file_path)
+    df.columns = columns
+
+    if selected_size is None:
+        temp = df.groupby(["계약년월"], as_index=False).agg(aggregate)
+    else:
+        temp = (
+            df.query(f"전용면적_그룹 == '{selected_size}'")
+            .groupby(["계약년월"], as_index=False)
+            .agg(aggregate)
+        )
+    temp.columns = __buysell_describe_columns
+    temp["평균(만원)"] = temp["평균(만원)"].round(2)
+    return temp
+
+
+def transfer_groupby_yyyyMM(
+    temp_file_path: str, si: str, gu: str, dong: str, year: int, columns: list[str]
+):
+    for key, value in size_rnages_filenames.items():
+        df = file_to_dataframe(temp_file_path, value, columns)
+        df.to_csv(get_output_file_path(si, gu, dong, year, key), index=False)
