@@ -30,12 +30,14 @@ if "selected_si" not in st.session_state:
 
 if "selected_gu" not in st.session_state:
     st.session_state["gu_list"] = get_gu_options()
-else:
-    selectbox_dong_index = 0
 
 if "selected_dong" not in st.session_state:
     st.session_state["dong_list"] = get_dong_options()
-    selectbox_dong_index = st.session_state["dong_list"].index("북가좌동")
+
+if "selectbox_dong_index" not in st.session_state:
+    st.session_state["selectbox_dong_index"] = st.session_state["dong_list"].index(
+        "북가좌동"
+    )
 
 #### config ####
 st.set_page_config(
@@ -95,7 +97,7 @@ with col3:
     st.session_state["selected_dong"] = st.selectbox(
         label="동",
         options=st.session_state["dong_list"],
-        index=selectbox_dong_index,
+        index=st.session_state["selectbox_dong_index"],
     )
 
 with col4:
