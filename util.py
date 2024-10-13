@@ -1,67 +1,8 @@
 import os
-import uuid
 from genericpath import exists
 
 import pandas
 from pandas import DataFrame, Series
-
-temp_output_path = os.path.join("data", "temp")
-
-size_rnages_filenames = {
-    "all": None,
-    "under_20": "10평대",
-    "under_30": "20평대",
-    "under_40": "30평대",
-    "over_40": "40평대 이상",
-}
-size_ranges = [0, 33, 66, 99, 1653]
-size_labels = [
-    "10평대",
-    "20평대",
-    "30평대",
-    "40평대 이상",
-]
-
-aggregate = {
-    "거래금액(만원)": [
-        "count",
-        "mean",
-        "std",
-        "min",
-        lambda x: x.quantile(0.25),
-        "median",
-        lambda x: x.quantile(0.75),
-        "max",
-    ]
-}
-
-__buysell_describe_columns = [
-    "계약년월",
-    "거래량(건)",
-    "평균(만원)",
-    "표준편차(만원)",
-    "최소(만원)",
-    "25%",
-    "50%",
-    "75%",
-    "최대(만원)",
-]
-
-
-def read_original_file(file_path: str, skiprows=15) -> DataFrame:
-    with open(file_path, "r") as infile:
-        content = infile.read()
-
-    temp_outputfile_path = f"{uuid.uuid4()}.csv"
-
-    with open(temp_outputfile_path, "w", encoding="utf-8") as outfile:
-        outfile.write(content)
-
-    df = pandas.read_csv(temp_outputfile_path, skiprows=skiprows)
-    # df["보증금(만원)"] = df["보증금(만원)"].str.replace(",", "").astype(int)
-    # df.to_csv("test.csv")
-    os.remove(temp_outputfile_path)
-    return df
 
 
 def filter_by_yyyyMM(df: DataFrame, yyyyMM: int, rent_type: str = "전세") -> Series:
@@ -114,16 +55,6 @@ def merge_division_data(groupby_divison_set: set, output_file_path: str) -> str:
 
     result_df.to_csv(output_division_file_path, index=False)
     return output_division_file_path
-
-
-def get_output_file_path(
-    si: str, gu: str, dong: str, year: int, selected_size: str
-) -> str:
-    dir = os.path.join("data", "output", si, gu, dong, selected_size)
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-    return os.path.join(dir, f"{year}.csv")
 
 
 def get_dataframe_for_insight(
@@ -189,28 +120,6 @@ def get_dong_options(gu: str = "서대문구") -> list:
     )
 
 
-def file_to_dataframe(
-    temp_file_path: str, selected_size: str | None, columns: list[str]
-):
-    df = pandas.read_csv(temp_file_path)
-    df.columns = columns
-
-    if selected_size is None:
-        temp = df.groupby(["계약년월"], as_index=False).agg(aggregate)
-    else:
-        temp = (
-            df.query(f"전용면적_그룹 == '{selected_size}'")
-            .groupby(["계약년월"], as_index=False)
-            .agg(aggregate)
-        )
-    temp.columns = __buysell_describe_columns
-    temp["평균(만원)"] = temp["평균(만원)"].round(2)
-    return temp
-
-
-def transfer_groupby_yyyyMM(
-    temp_file_path: str, si: str, gu: str, dong: str, year: int, columns: list[str]
-):
-    for key, value in size_rnages_filenames.items():
-        df = file_to_dataframe(temp_file_path, value, columns)
-        df.to_csv(get_output_file_path(si, gu, dong, year, key), index=False)
+def makedir_if_not_exists(path: str):
+    if not os.path.exists(path):
+        os.makedirs(path)
