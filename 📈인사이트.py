@@ -50,16 +50,18 @@ st.set_page_config(
 #### sidebar ####
 add_sidebar(st)
 
+# 전세는 2011년 1월 1일 부터
+
 #### index page ####
-st.success(
-    "매매는 2006년 1월 1일 부터, 전세는 2011년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.",
-    icon="🔥",
-)
+st.success("2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
 st.divider()
 
-col1, col2, col3, col4 = st.columns(4)
+r1_col1, r1_col2, r1_col3 = st.columns(3)
+r2_col1, r2_col2, r2_col3 = st.columns(3)
 
-size_choices = [
+st.divider()
+
+choices_size = [
     "전체",
     "10평대 (33㎡미만)",
     "20평대 (66㎡미만)",
@@ -75,57 +77,65 @@ selected_sizes = [
     "over_40",
 ]
 
+choices_begin_date = ["1년", "3년", "5년", "10년", "전체"]
+selected_begin_dates = [
+    today - datetime.timedelta(days=365),  # 1년
+    today - datetime.timedelta(days=1095),  # 3년
+    today - datetime.timedelta(days=1825),  # 5년
+    today - datetime.timedelta(days=3650),  # 10년
+    datetime.datetime(2006, 1, 1),
+]
 
-with col1:
+with r1_col1:
     st.session_state["selected_si"] = st.selectbox(
         label="시",
         options=st.session_state["si_list"],
         index=st.session_state["si_list"].index("서울특별시"),
     )
 
-with col2:
+with r1_col2:
     st.session_state["selected_gu"] = st.selectbox(
         label="구",
         options=st.session_state["gu_list"],
         index=st.session_state["gu_list"].index("서대문구"),
     )
-
     st.session_state["dong_list"] = get_dong_options(st.session_state["selected_gu"])
 
-
-with col3:
+with r1_col3:
     st.session_state["selected_dong"] = st.selectbox(
         label="동",
         options=st.session_state["dong_list"],
         index=st.session_state["selectbox_dong_index"],
     )
 
-with col4:
+with r2_col1:
+    selected_begin_date = st.selectbox(label="기간", options=choices_begin_date)
+
+    if selected_begin_date == "전체":
+        datetime_2006 = datetime.datetime(2006, 1, 1)
+        st.session_state["begin_date"] = datetime_2006
+        st.session_state["year_from_now"] = (
+            f"{(today.year - datetime_2006.year) + 1} 년"
+        )
+    else:
+        st.session_state["begin_date"] = selected_begin_dates[
+            choices_begin_date.index(selected_begin_date)
+        ]
+        st.session_state["year_from_now"] = selected_begin_date
+
+with r2_col2:
     size_choice = st.selectbox(
-        label="면적", options=size_choices, index=size_choices.index("전체")
+        label="면적", options=choices_size, index=choices_size.index("전체")
     )
     st.session_state["size_choice"] = size_choice
-    st.session_state["selected_size"] = selected_sizes[size_choices.index(size_choice)]
+    st.session_state["selected_size"] = selected_sizes[choices_size.index(size_choice)]
 
-b_col1, b_col2, b_col3, b_col4, b_col5, b_col6 = st.columns(6)
-
-if b_col2.button("1년", use_container_width=True):
-    st.session_state["begin_date"] = today - datetime.timedelta(days=365)
-    st.session_state["year_from_now"] = 1
-if b_col3.button("3년", use_container_width=True):
-    st.session_state["begin_date"] = today - datetime.timedelta(days=1095)
-    st.session_state["year_from_now"] = 3
-if b_col4.button("5년", use_container_width=True):
-    st.session_state["begin_date"] = today - datetime.timedelta(days=1825)
-    st.session_state["year_from_now"] = 5
-if b_col5.button("10년", use_container_width=True):
-    st.session_state["begin_date"] = today - datetime.timedelta(days=3650)
-    st.session_state["year_from_now"] = 10
-if b_col6.button("전체", use_container_width=True):
-    datetime_2006 = datetime.datetime(2006, 1, 1)
-    st.session_state["begin_date"] = datetime_2006
-    st.session_state["year_from_now"] = (today.year - datetime_2006.year) + 1
-
+with r2_col3:
+    size_choice = st.selectbox(
+        label="건축년도",
+        options=["~ 2년", "~ 4년", "~ 10년", "~ 20년", "~ 30년"],
+        disabled=True,
+    )
 
 begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
 begin_year = int(st.session_state["begin_date"].year)
@@ -147,7 +157,7 @@ else:
     df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
 
     sub_chart_mean = df["평균(만원)"].mean()
-    sub_chart_mean_title = f"{st.session_state["size_choice"]} 지난 {st.session_state["year_from_now"]} 년간 평균 ({sub_chart_mean:,.0f} 만원)"
+    sub_chart_mean_title = f"{st.session_state["size_choice"]} 면적 - 지난 {st.session_state["year_from_now"]} 간 평균 ({sub_chart_mean:,.0f} 만원)"
 
     sub_chart_count = df["거래량(건)"].sum()
     sub_chart_count_title = f"거래량 ({sub_chart_count:,.0f} 건)"

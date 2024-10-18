@@ -1,7 +1,15 @@
 __pycache__
+.taskdefinition
 .venv
 .vscode
 tests
 test_etc
 
 data/original
+back_pages
+etl
+
+.dockerignore
+.gitignore
+Dockerfile
+Readme.md

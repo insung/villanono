@@ -57,13 +57,36 @@ def merge_division_data(groupby_divison_set: set, output_file_path: str) -> str:
     return output_division_file_path
 
 
+def __get_output_file_path(
+    year: int,
+    si: str,
+    gu: str,
+    dong: str,
+    selected_size: str,
+    buy_or_rent: str = "buysell",
+) -> str:
+    temp = "매매" if buy_or_rent == "buysell" else "전세"
+    result = os.path.join(
+        "data", "output", si, gu, dong, selected_size, f"{year}_{temp}.csv"
+    )
+    return result
+
+
 def get_dataframe_for_insight(
-    begin_year: int, end_year: int, si: str, gu: str, dong: str, selected_size: str
+    begin_year: int,
+    end_year: int,
+    si: str,
+    gu: str,
+    dong: str,
+    selected_size: str,
+    buy_or_rent: str = "buysell",
 ) -> DataFrame:
     result = None
 
     for year in range(begin_year, end_year + 1):
-        file_path = get_output_file_path(si, gu, dong, year, selected_size)
+        file_path = __get_output_file_path(
+            year, si, gu, dong, selected_size, buy_or_rent
+        )
 
         if not exists(file_path):
             continue
