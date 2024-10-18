@@ -1,3 +1,4 @@
+from etl.insight_buysell_built_year_etl import InsightBuySellBuiltYearETL
 from etl.insight_buysell_etl import InsightBuySellETL
 from etl.insight_rent_etl import InsightRentETL
 from util import read_divisions
@@ -26,4 +27,10 @@ def run2():
     etl.transform()
 
 
-run2()
+def run3():
+    etl = InsightBuySellBuiltYearETL("서울특별시", "서대문구", "북가좌동", 2024, 2015)
+    etl.extract()
+    etl.transform()
+
+
+run3()

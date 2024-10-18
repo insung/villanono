@@ -47,7 +47,7 @@ class InsightETLABC(ABC):
     ]
     dir_data_original = os.path.join("data", "original")
     dir_data_temp = os.path.join("data", "temp")
-    dir_data_output = os.path.join("data", "ouput")
+    dir_data_output = os.path.join("data", "output")
 
     @abstractmethod
     def get_columns(self) -> list[str]:
