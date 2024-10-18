@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
 
+from page_config import add_page_config
 from sidebar import add_sidebar
 from util import (
     get_dataframe_for_insight,
@@ -39,13 +40,8 @@ if "selectbox_dong_index" not in st.session_state:
         "북가좌동"
     )
 
-#### config ####
-st.set_page_config(
-    page_title="빌라 실거래 검색은 빌라 노노",
-    page_icon="🚀",
-    # layout="wide",
-    # initial_sidebar_state="expanded",
-)
+#### page config ####
+add_page_config(st)
 
 #### sidebar ####
 add_sidebar(st)
@@ -131,7 +127,7 @@ with r2_col2:
     st.session_state["selected_size"] = selected_sizes[choices_size.index(size_choice)]
 
 with r2_col3:
-    size_choice = st.selectbox(
+    built_year = st.selectbox(
         label="건축년도",
         options=["~ 2년", "~ 4년", "~ 10년", "~ 20년", "~ 30년"],
         disabled=True,
