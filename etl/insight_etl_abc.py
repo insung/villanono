@@ -102,7 +102,8 @@ class InsightETLABC(ABC):
         size_selected_path = os.path.join(self.get_dir_data_output(), dir_lastname)
         makedir_if_not_exists(size_selected_path)
         output_path = os.path.join(size_selected_path, self.get_filename())
-        df.to_csv(output_path, index=False)
+        if not df.empty:
+            df.to_csv(output_path, index=False)
 
     def __read_original_file(self, file_path: str, skiprows=15) -> pandas.DataFrame:
         with open(file_path, "r") as infile:

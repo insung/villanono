@@ -1,5 +1,4 @@
 from etl.insight_buysell_built_year_etl import InsightBuySellBuiltYearETL
-from etl.insight_buysell_etl import InsightBuySellETL
 from etl.insight_rent_etl import InsightRentETL
 from util import read_divisions
 
@@ -16,9 +15,14 @@ def run():
                     si = si_items[0]
                     gu = gu_dict[0]
 
-                    etl = InsightBuySellETL(si, gu, dong, year)
-                    etl.extract()
-                    etl.transform()
+                    # etl = InsightBuySellETL(si, gu, dong, year)
+                    # etl.extract()
+                    # etl.transform()
+
+                    for built_year in range(1985, 2025):
+                        etl = InsightBuySellBuiltYearETL(si, gu, dong, year, built_year)
+                        etl.extract()
+                        etl.transform()
 
 
 def run2():
@@ -28,9 +32,12 @@ def run2():
 
 
 def run3():
-    etl = InsightBuySellBuiltYearETL("서울특별시", "서대문구", "북가좌동", 2024, 2015)
-    etl.extract()
-    etl.transform()
+    for built_year in range(1985, 2025):
+        etl = InsightBuySellBuiltYearETL(
+            "서울특별시", "서초구", "내곡동", 2008, built_year
+        )
+        etl.extract()
+        etl.transform()
 
 
-run3()
+run()
