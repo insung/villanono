@@ -1,9 +1,10 @@
 import os
 import uuid
+from genericpath import exists
 
 import pandas
 
-from util import makedir_if_not_exists
+from util import makedir_if_not_exists, read_divisions
 
 __si = "서울특별시"
 __readable_path = os.path.join("data", "original_to_csv", __si)
@@ -36,7 +37,7 @@ def run_original_buysell_to_csv():
 
 
 def run_readable_csv_to_db():
-    dataframes = []
+    sigudong = read_divisions()
 
     for year in range(2006, 2025):
         file_path = f"{year}_연립다세대(매매).csv"
@@ -90,16 +91,31 @@ def run_readable_csv_to_db():
             right=False,
         )
 
-        dataframes.append(df)
+        for si_items in sigudong.items():
+            for gu_dict in si_items[1].items():
+                gu = gu_dict[0]
 
-    result = pandas.DataFrame()
-    for df in dataframes:
-        result = pandas.concat([result, df])
+                result = df.query(f"구 == '{gu}'")
 
-    result.to_csv(
-        os.path.join("data", "temp3", __si, "서대문구_연립다세대(매매).csv"),
-        index=False,
-    )
+                result_file_path = os.path.join(
+                    "data", "temp3", __si, f"{gu}_연립다세대(매매).csv"
+                )
+
+                print("processing", year, gu)
+
+                if exists(result_file_path):
+                    old = pandas.read_csv(result_file_path)
+                    result = pandas.concat([old, result])
+
+                    result.to_csv(
+                        result_file_path,
+                        index=False,
+                    )
+                else:
+                    result.to_csv(
+                        result_file_path,
+                        index=False,
+                    )
 
 
 run_readable_csv_to_db()

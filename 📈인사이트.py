@@ -14,7 +14,13 @@ from util import (
     get_si_options,
 )
 
-#### variables ####
+#### page config ####
+add_page_config(st)
+
+#### sidebar ####
+add_sidebar(st)
+
+#### session variables ####
 today = datetime.datetime.today()
 end_year: int = int(today.year)
 
@@ -40,15 +46,11 @@ if "selectbox_dong_index" not in st.session_state:
         "북가좌동"
     )
 
-#### page config ####
-add_page_config(st)
+if "selected_built_year" not in st.session_state:
+    st.session_state["selected_built_year"] = "전체"
 
-#### sidebar ####
-add_sidebar(st)
-
+#### page ####
 # 전세는 2011년 1월 1일 부터
-
-#### index page ####
 st.success("2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
 st.divider()
 
@@ -56,6 +58,8 @@ r1_col1, r1_col2, r1_col3 = st.columns(3)
 r2_col1, r2_col2, r2_col3 = st.columns(3)
 
 st.divider()
+
+#### choices ####
 
 choices_size = [
     "전체",
@@ -65,7 +69,7 @@ choices_size = [
     "40평대 이상 (99㎡이상)",
 ]
 
-selected_sizes = [
+indexes_size = [
     "",
     "10평대",
     "20평대",
@@ -74,13 +78,25 @@ selected_sizes = [
 ]
 
 choices_begin_date = ["1년", "3년", "5년", "10년", "전체"]
-selected_begin_dates = [
+indexes_begin_date = [
     today - datetime.timedelta(days=365),  # 1년
     today - datetime.timedelta(days=1095),  # 3년
     today - datetime.timedelta(days=1825),  # 5년
     today - datetime.timedelta(days=3650),  # 10년
     datetime.datetime(2006, 1, 1),
 ]
+
+choices_built_year = ["전체", "~ 2년", "~ 4년", "~ 10년", "~ 20년", "~ 30년"]
+indexes_built_year = [
+    None,
+    today - datetime.timedelta(days=730),  # 2년
+    today - datetime.timedelta(days=1460),  # 4년
+    today - datetime.timedelta(days=3650),  # 10년
+    today - datetime.timedelta(days=7300),  # 20년
+    today - datetime.timedelta(days=10950),  # 30년
+]
+
+#### colums work ####
 
 with r1_col1:
     st.session_state["selected_si"] = st.selectbox(
@@ -114,7 +130,7 @@ with r2_col1:
             f"{(today.year - datetime_2006.year) + 1} 년"
         )
     else:
-        st.session_state["begin_date"] = selected_begin_dates[
+        st.session_state["begin_date"] = indexes_begin_date[
             choices_begin_date.index(selected_begin_date)
         ]
         st.session_state["year_from_now"] = selected_begin_date
@@ -124,33 +140,39 @@ with r2_col2:
         label="면적", options=choices_size, index=choices_size.index("전체")
     )
     st.session_state["size_choice"] = size_choice
-    st.session_state["selected_size"] = selected_sizes[choices_size.index(size_choice)]
+    st.session_state["selected_size"] = indexes_size[choices_size.index(size_choice)]
 
 with r2_col3:
-    built_year = st.selectbox(
+    selected_built_year = st.selectbox(
         label="건축년도",
-        options=["~ 2년", "~ 4년", "~ 10년", "~ 20년", "~ 30년"],
-        disabled=True,
+        options=choices_built_year,
+        index=choices_built_year.index("전체"),
     )
+    st.session_state["selected_built_year"] = indexes_built_year[
+        choices_built_year.index(selected_built_year)
+    ]
+
+#### query ####
 
 begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
-begin_year = int(st.session_state["begin_date"].year)
-
-# df = get_dataframe_for_insight(
-#     begin_year,
-#     end_year,
-#     st.session_state["selected_si"],
-#     st.session_state["selected_gu"],
-#     st.session_state["selected_dong"],
-#     st.session_state["selected_size"],
-# )
-
 query = f"시 == '{st.session_state["selected_si"]}' & 구 == '{st.session_state["selected_gu"]}' & 동 == '{st.session_state["selected_dong"]}' & 계약년월 >= {begin_yyyyMM}"
 
-if st.session_state["selected_size"]:
-    query = query + f"& 전용면적_그룹 == '{st.session_state["selected_size"]}'"
+if st.session_state["selected_built_year"]:
+    query = query + f" & 건축년도 >= {st.session_state["selected_built_year"].year}"
 
-read_df = pd.read_csv(os.path.join("data", "temp3", "서울특별시_연립다세대(매매).csv"))
+if st.session_state["selected_size"]:
+    query = query + f" & 전용면적_그룹 == '{st.session_state["selected_size"]}'"
+
+#### pandas ####
+
+read_df = pd.read_csv(
+    os.path.join(
+        "data",
+        "temp3",
+        "서울특별시",
+        f"{st.session_state["selected_gu"]}_연립다세대(매매).csv",
+    )
+)
 df = (
     read_df.query(query)
     .groupby(["계약년월"], as_index=False)
@@ -182,6 +204,8 @@ df.columns = [
     "최대(만원)",
 ]
 df["평균(만원)"] = df["평균(만원)"].round(2)
+
+#### charts ####
 
 if df is None:
     st.write("데이터가 없습니다.")
