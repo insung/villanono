@@ -114,11 +114,20 @@ with r1_col2:
     st.session_state["dong_list"] = get_dong_options(st.session_state["selected_gu"])
 
 with r1_col3:
-    st.session_state["selected_dong"] = st.selectbox(
-        label="동",
-        options=st.session_state["dong_list"],
-        index=st.session_state["selectbox_dong_index"],
-    )
+    try:
+        st.session_state["selected_dong"] = st.selectbox(
+            label="동",
+            options=st.session_state["dong_list"],
+            index=st.session_state["selectbox_dong_index"],
+        )
+    except:
+        st.session_state["selectbox_dong_index"] = 0
+        st.session_state["selected_dong"] = st.selectbox(
+            label="동",
+            options=st.session_state["dong_list"],
+            index=st.session_state["selectbox_dong_index"],
+        )
+
 
 with r2_col1:
     selected_begin_date = st.selectbox(label="기간", options=choices_begin_date)
@@ -147,6 +156,7 @@ with r2_col3:
         label="건축년도",
         options=choices_built_year,
         index=choices_built_year.index("전체"),
+        help="건축년도는 현재 날짜로부터의 경과 시간을 기준으로 계산됩니다. 예를 들어, 건축년도가 10년인 경우, 이는 현재 날짜로부터 10년 전에 지어진 건물까지 포함하여 조회됩니다.",
     )
     st.session_state["selected_built_year"] = indexes_built_year[
         choices_built_year.index(selected_built_year)
