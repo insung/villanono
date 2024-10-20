@@ -1,4 +1,5 @@
 import datetime
+import os
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -8,7 +9,6 @@ from plotly.subplots import make_subplots
 from page_config import add_page_config
 from sidebar import add_sidebar
 from util import (
-    get_dataframe_for_insight,
     get_dong_options,
     get_gu_options,
     get_si_options,
@@ -66,11 +66,11 @@ choices_size = [
 ]
 
 selected_sizes = [
-    "all",
-    "under_20",
-    "under_30",
-    "under_40",
-    "over_40",
+    "",
+    "10평대",
+    "20평대",
+    "30평대",
+    "40평대 이상",
 ]
 
 choices_begin_date = ["1년", "3년", "5년", "10년", "전체"]
@@ -136,14 +136,52 @@ with r2_col3:
 begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
 begin_year = int(st.session_state["begin_date"].year)
 
-df = get_dataframe_for_insight(
-    begin_year,
-    end_year,
-    st.session_state["selected_si"],
-    st.session_state["selected_gu"],
-    st.session_state["selected_dong"],
-    st.session_state["selected_size"],
+# df = get_dataframe_for_insight(
+#     begin_year,
+#     end_year,
+#     st.session_state["selected_si"],
+#     st.session_state["selected_gu"],
+#     st.session_state["selected_dong"],
+#     st.session_state["selected_size"],
+# )
+
+query = f"시 == '{st.session_state["selected_si"]}' & 구 == '{st.session_state["selected_gu"]}' & 동 == '{st.session_state["selected_dong"]}' & 계약년월 >= {begin_yyyyMM}"
+
+if st.session_state["selected_size"]:
+    query = query + f"& 전용면적_그룹 == '{st.session_state["selected_size"]}'"
+
+read_df = pd.read_csv(os.path.join("data", "temp3", "서울특별시_연립다세대(매매).csv"))
+df = (
+    read_df.query(query)
+    .groupby(["계약년월"], as_index=False)
+    .agg(
+        {
+            "거래금액(만원)": [
+                "count",
+                "mean",
+                "std",
+                "min",
+                lambda x: x.quantile(0.25),
+                "median",
+                lambda x: x.quantile(0.75),
+                "max",
+            ]
+        }
+    )
 )
+
+df.columns = [
+    "계약년월",
+    "거래량(건)",
+    "평균(만원)",
+    "표준편차(만원)",
+    "최소(만원)",
+    "25%",
+    "50%",
+    "75%",
+    "최대(만원)",
+]
+df["평균(만원)"] = df["평균(만원)"].round(2)
 
 if df is None:
     st.write("데이터가 없습니다.")
