@@ -20,8 +20,8 @@ __size_labels = [
 def run_original_buysell_to_csv():
     makedir_if_not_exists(__readable_path)
 
-    for year in range(2006, 2025):
-        file_path = f"{year}_연립다세대(매매).csv"
+    for year in range(2011, 2025):
+        file_path = f"{year}_연립다세대(전월세).csv"
 
         with open(os.path.join("data", "original", __si, file_path), "r") as infile:
             content = infile.read()
@@ -31,9 +31,13 @@ def run_original_buysell_to_csv():
         with open(temp_outputfile_path, "w", encoding="utf-8") as outfile:
             outfile.write(content)
 
-        df = pandas.read_csv(temp_outputfile_path, skiprows=15)
+        df = pandas.read_csv(temp_outputfile_path, skiprows=15, low_memory=False)
         os.remove(temp_outputfile_path)
-        df.to_csv(os.path.join(__readable_path, file_path), index=False)
+        output_file_path = os.path.join(__readable_path, file_path)
+        if exists(output_file_path):
+            os.remove(output_file_path)
+
+        df.to_csv(output_file_path, index=False)
 
 
 def run_readable_csv_to_db():
@@ -118,4 +122,89 @@ def run_readable_csv_to_db():
                     )
 
 
-run_readable_csv_to_db()
+def run_rent_readable_csv():
+    sigudong = read_divisions()
+
+    for year in range(2011, 2025):
+        file_path = f"{year}_연립다세대(전월세).csv"
+
+        original_df = pandas.read_csv(os.path.join(__readable_path, file_path))
+
+        df = original_df.query("전월세구분 == '전세'")
+        df["거래금액(만원)"] = df["보증금(만원)"].str.replace(",", "").astype(int)
+        df.loc[:, "계약일자"] = df["계약년월"].astype(str) + df["계약일"].astype(
+            str
+        ).str.zfill(2)
+        df["계약일자"] = pandas.to_datetime(df["계약일자"], format="%Y%m%d")
+
+        df.columns = [
+            "NO",
+            "시군구",
+            "번지",
+            "본번",
+            "부번",
+            "건물명",
+            "전월세구분",
+            "전용면적",
+            "계약년월",
+            "계약일",
+            "보증금(만원)",
+            "월세금(만원)",
+            "층",
+            "건축년도",
+            "도로명",
+            "계약기간",
+            "계약구분",
+            "갱신요구권 사용",
+            "종전계약 보증금(만원)",
+            "종전계약 월세(만원)",
+            "주택유형",
+            "거래금액(만원)",
+            "계약일자",
+        ]
+
+        df[["시", "구", "동"]] = df["시군구"].str.split(" ", expand=True)
+        df = df.drop(columns=["NO", "시군구"])
+
+        cols = ["시", "구", "동"] + [
+            col for col in df.columns if col not in ["시", "구", "동"]
+        ]
+
+        # 컬럼 순서 변경
+        df = df[cols]
+
+        df["전용면적_그룹"] = pandas.cut(
+            df["전용면적"],
+            bins=__size_ranges,
+            labels=__size_labels,
+            right=False,
+        )
+
+        for si_items in sigudong.items():
+            for gu_dict in si_items[1].items():
+                gu = gu_dict[0]
+
+                result = df.query(f"구 == '{gu}'")
+
+                result_file_path = os.path.join(
+                    "data", "temp3", __si, f"{gu}_연립다세대(전월세).csv"
+                )
+
+                print("processing", year, gu)
+
+                if exists(result_file_path):
+                    old = pandas.read_csv(result_file_path)
+                    result = pandas.concat([old, result])
+
+                    result.to_csv(
+                        result_file_path,
+                        index=False,
+                    )
+                else:
+                    result.to_csv(
+                        result_file_path,
+                        index=False,
+                    )
+
+
+run_rent_readable_csv()
