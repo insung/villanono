@@ -1,12 +1,10 @@
 import datetime
 import os
 
-import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
-from plotly.subplots import make_subplots
 
 from page_config import add_page_config
+from servies.insight_chart import load_chart
 from sidebar import add_sidebar
 from util import (
     get_dong_options,
@@ -50,9 +48,6 @@ if "selected_built_year" not in st.session_state:
     st.session_state["selected_built_year"] = "전체"
 
 #### page ####
-# 전세는 2011년 1월 1일 부터
-st.success("2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
-st.divider()
 
 r1_col1, r1_col2, r1_col3 = st.columns(3)
 r2_col1, r2_col2, r2_col3 = st.columns(3)
@@ -128,7 +123,6 @@ with r1_col3:
             index=st.session_state["selectbox_dong_index"],
         )
 
-
 with r2_col1:
     selected_begin_date = st.selectbox(label="기간", options=choices_begin_date)
 
@@ -162,110 +156,46 @@ with r2_col3:
         choices_built_year.index(selected_built_year)
     ]
 
-#### query ####
+#### buysell ####
 
-begin_yyyyMM = int(st.session_state["begin_date"].strftime("%Y%m"))
-query = f"시 == '{st.session_state["selected_si"]}' & 구 == '{st.session_state["selected_gu"]}' & 동 == '{st.session_state["selected_dong"]}' & 계약년월 >= {begin_yyyyMM}"
-
-if st.session_state["selected_built_year"]:
-    query = query + f" & 건축년도 >= {st.session_state["selected_built_year"].year}"
-
-if st.session_state["selected_size"]:
-    query = query + f" & 전용면적_그룹 == '{st.session_state["selected_size"]}'"
-
-#### pandas ####
-
-read_df = pd.read_csv(
-    os.path.join(
+with st.expander("매매 시장", expanded=True):
+    st.success("2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
+    file_path_buysell = os.path.join(
         "data",
         "temp3",
         "서울특별시",
         f"{st.session_state["selected_gu"]}_연립다세대(매매).csv",
     )
-)
-df = (
-    read_df.query(query)
-    .groupby(["계약년월"], as_index=False)
-    .agg(
-        {
-            "거래금액(만원)": [
-                "count",
-                "mean",
-                "std",
-                "min",
-                lambda x: x.quantile(0.25),
-                "median",
-                lambda x: x.quantile(0.75),
-                "max",
-            ]
-        }
-    )
-)
-
-df.columns = [
-    "계약년월",
-    "거래량(건)",
-    "평균(만원)",
-    "표준편차(만원)",
-    "최소(만원)",
-    "25%",
-    "50%",
-    "75%",
-    "최대(만원)",
-]
-df["평균(만원)"] = df["평균(만원)"].round(2)
-
-#### charts ####
-
-if df is None:
-    st.write("데이터가 없습니다.")
-else:
-    df = df.query(f"계약년월 > {begin_yyyyMM}")
-
-    df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
-
-    sub_chart_mean = df["평균(만원)"].mean()
-    sub_chart_mean_title = f"{st.session_state["size_choice"]} 면적 - 지난 {st.session_state["year_from_now"]} 간 평균 ({sub_chart_mean:,.0f} 만원)"
-
-    sub_chart_count = df["거래량(건)"].sum()
-    sub_chart_count_title = f"거래량 ({sub_chart_count:,.0f} 건)"
-
-    fig = make_subplots(
-        rows=2,
-        cols=1,
-        shared_xaxes=True,
-        vertical_spacing=0.1,
-        row_heights=[0.8, 0.2],
-        subplot_titles=(sub_chart_mean_title, sub_chart_count_title),
+    load_chart(
+        st,
+        file_path_buysell,
+        st.session_state["size_choice"],
+        st.session_state["year_from_now"],
+        st.session_state["begin_date"],
+        st.session_state["selected_si"],
+        st.session_state["selected_gu"],
+        st.session_state["selected_dong"],
+        st.session_state["selected_built_year"],
+        st.session_state["selected_size"],
     )
 
-    fig.add_trace(
-        go.Scatter(
-            x=df["계약년월"],
-            y=df["평균(만원)"],
-            hovertemplate="%{x|%Y-%m} - %{y}만원",
-            name="",
-        ),
-        row=1,
-        col=1,
+with st.expander("전세 시장", expanded=False):
+    st.success("2011년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
+    file_path_rent = os.path.join(
+        "data",
+        "temp3",
+        "서울특별시",
+        f"{st.session_state["selected_gu"]}_연립다세대(전월세).csv",
     )
-    fig.add_trace(
-        go.Bar(
-            x=df["계약년월"],
-            y=df["거래량(건)"],
-            hovertemplate="%{x|%Y-%m} - %{y}건",
-            name="",
-        ),
-        row=2,
-        col=1,
+    load_chart(
+        st,
+        file_path_rent,
+        st.session_state["size_choice"],
+        st.session_state["year_from_now"],
+        st.session_state["begin_date"],
+        st.session_state["selected_si"],
+        st.session_state["selected_gu"],
+        st.session_state["selected_dong"],
+        st.session_state["selected_built_year"],
+        st.session_state["selected_size"],
     )
-    fig.update_yaxes(tickformat=",.0f")
-    fig.update_layout(
-        height=600,
-        showlegend=False,
-        xaxis=dict(
-            rangeslider=dict(visible=False),
-        ),
-        hovermode="x unified",
-    )
-    st.plotly_chart(fig, use_container_width=True)
