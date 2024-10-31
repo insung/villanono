@@ -4,7 +4,7 @@ import os
 import streamlit as st
 
 from page_config import add_page_config
-from servies.insight_chart import load_chart
+from servies.insight_chart import load_buysell_and_rent_percent, load_chart
 from sidebar import add_sidebar
 from util import (
     get_dong_options,
@@ -159,14 +159,14 @@ with r2_col3:
 #### buysell ####
 
 with st.expander("매매 시장", expanded=True):
-    st.success("2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
+    # st.success("2006년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
     file_path_buysell = os.path.join(
         "data",
         "temp3",
         "서울특별시",
         f"{st.session_state["selected_gu"]}_연립다세대(매매).csv",
     )
-    load_chart(
+    df_buysell = load_chart(
         st,
         file_path_buysell,
         st.session_state["size_choice"],
@@ -180,14 +180,14 @@ with st.expander("매매 시장", expanded=True):
     )
 
 with st.expander("전세 시장", expanded=False):
-    st.success("2011년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
+    # st.success("2011년 1월 1일 부터 2024년 10월 1일까지의 실거래 정보입니다.")
     file_path_rent = os.path.join(
         "data",
         "temp3",
         "서울특별시",
         f"{st.session_state["selected_gu"]}_연립다세대(전월세).csv",
     )
-    load_chart(
+    df_rent = load_chart(
         st,
         file_path_rent,
         st.session_state["size_choice"],
@@ -199,3 +199,6 @@ with st.expander("전세 시장", expanded=False):
         st.session_state["selected_built_year"],
         st.session_state["selected_size"],
     )
+
+with st.expander("전세가율"):
+    load_buysell_and_rent_percent(st, df_buysell, df_rent)
