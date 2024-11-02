@@ -9,10 +9,15 @@ set_page(st, False)
 #### sidebar ####
 set_sidebar(st)
 
+st.snow()
+
 st.info(
     "이 사이트는 **국토교통부 실거래가 공개시스템**의 데이터로 만들어졌습니다. ([출처](https://rt.molit.go.kr/pt/xls/xls.do?mobileAt=))"
 )
+st.success("매매 실거래는 2006년 1월 1일 부터 2024년 10월 1일까지의 정보입니다.")
+st.success("전세 실거래는 2011년 1월 1일 부터 2024년 10월 1일까지의 정보입니다.")
 
+st.divider()
 st.markdown("""
 ### 🩺 이 사이트를 만든 배경
 

@@ -1,79 +1,20 @@
-from datetime import datetime
-
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit
 from plotly.subplots import make_subplots
 
-from servies.insight_query import get_insight_query
-
 
 def load_chart(
     st: streamlit,
-    file_path: str,
+    df: pd.DataFrame,
     size_choice: str,
     year_from_now: str,
-    begin_date: datetime,
-    selected_si: str,
-    selected_gu: str,
-    selected_dong: str,
-    selected_built_year: datetime | None,
-    selected_size: str | None,
-) -> pd.DataFrame:
-    query = get_insight_query(
-        begin_date,
-        selected_si,
-        selected_gu,
-        selected_dong,
-        selected_built_year,
-        selected_size,
-    )
-
-    begin_yyyyMM = int(begin_date.strftime("%Y%m"))
-
-    read_df = pd.read_csv(file_path)
-    df = (
-        read_df.query(query)
-        .groupby(["계약년월"], as_index=False)
-        .agg(
-            {
-                "거래금액(만원)": [
-                    "count",
-                    "mean",
-                    "std",
-                    "min",
-                    lambda x: x.quantile(0.25),
-                    "median",
-                    lambda x: x.quantile(0.75),
-                    "max",
-                ]
-            }
-        )
-    )
-
-    df.columns = [
-        "계약년월",
-        "거래량(건)",
-        "평균(만원)",
-        "표준편차(만원)",
-        "최소(만원)",
-        "25%",
-        "50%",
-        "75%",
-        "최대(만원)",
-    ]
-    df["평균(만원)"] = df["평균(만원)"].round(2)
-
-    #### charts ####
-
+):
     if df is None:
         st.write("데이터가 없습니다.")
         return
 
-    df = df.query(f"계약년월 > {begin_yyyyMM}")
-
-    df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
-
+    #### charts ####
     sub_chart_mean = df["평균(만원)"].mean()
     sub_chart_mean_title = f"{size_choice} 면적 - 지난 {year_from_now} 간 평균 ({sub_chart_mean:,.0f} 만원)"
 
@@ -120,21 +61,11 @@ def load_chart(
     )
     st.plotly_chart(fig, use_container_width=True)
 
-    return df
 
-
-def load_buysell_and_rent_percent(
-    st: streamlit, df_buysell: pd.DataFrame, df_rent: pd.DataFrame
-) -> pd.DataFrame:
-    # 데이터프레임 병합
-    df_merged = pd.merge(
-        df_buysell, df_rent, on="계약년월", suffixes=("_매매", "_전세")
-    )
-
-    # 전세가율 계산
-    df_merged["전세가율(%)"] = (
-        df_merged["평균(만원)_전세"] / df_merged["평균(만원)_매매"]
-    ) * 100
+def load_chart_buysell_rent_rate(st: streamlit, df_merged: pd.DataFrame):
+    if df_merged is None:
+        st.write("데이터가 없습니다.")
+        return
 
     # Subplots 생성
     fig = make_subplots(
@@ -196,5 +127,3 @@ def load_buysell_and_rent_percent(
 
     # Streamlit을 사용하여 차트 표시
     st.plotly_chart(fig, use_container_width=True)
-
-    return df_merged

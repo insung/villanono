@@ -19,7 +19,7 @@ __footer_style = """
 
 
 def set_sidebar(st: streamlit):
-    st.sidebar.header("✨빌라 실거래 | 빌라 노노✨")
+    st.sidebar.header("🚀 빌라 실거래는 빌라 노노 🚀")
 
     # Footer 추가
     st.sidebar.markdown(__footer_style, unsafe_allow_html=True)

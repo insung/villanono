@@ -16,7 +16,7 @@ def init_session_variables(st: streamlit):
     __init_if_empty(st, "gu_list", get_gu_options())
     __init_if_empty(st, "dong_list", get_dong_options())
 
-    __init_if_empty(st, "selected_size", "all")
+    __init_if_empty(st, "selected_size", "")
     __init_if_empty(st, "size_choice", "전체")
 
     __init_if_empty(st, "selected_si", "서울특별시")
