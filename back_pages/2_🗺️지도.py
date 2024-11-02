@@ -1,6 +1,6 @@
 import streamlit as st
 
-from sidebar import add_sidebar
+from sidebar import set_sidebar
 
 #### sidebar ####
-add_sidebar(st)
+set_sidebar(st)

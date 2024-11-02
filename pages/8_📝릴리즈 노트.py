@@ -1,13 +1,15 @@
 import streamlit as st
 
-from page_config import add_page_config
-from sidebar import add_sidebar
+from page_config import set_page
+from sidebar import set_sidebar
 
 #### page config ####
-add_page_config(st)
+set_page(st, False)
 
 #### sidebar ####
-add_sidebar(st)
+set_sidebar(st)
+
+st.header("릴리즈 노트")
 
 st.write("2024-10-04 : 사이트 Open")
 st.write(

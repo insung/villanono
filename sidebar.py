@@ -18,7 +18,7 @@ __footer_style = """
 """
 
 
-def add_sidebar(st: streamlit):
+def set_sidebar(st: streamlit):
     st.sidebar.header("✨빌라 실거래 | 빌라 노노✨")
 
     # Footer 추가
