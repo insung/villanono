@@ -132,3 +132,38 @@ def load_buysell_rent_rate_data(
     ]
 
     return df_merged
+
+
+def set_columns_round(df: pd.DataFrame):
+    df[
+        [
+            "평균(만원)",
+            "표준편차(만원)",
+            "최소(만원)",
+            "25%",
+            "50%",
+            "75%",
+            "최대(만원)",
+        ]
+    ] = df[
+        [
+            "평균(만원)",
+            "표준편차(만원)",
+            "최소(만원)",
+            "25%",
+            "50%",
+            "75%",
+            "최대(만원)",
+        ]
+    ].round(-2)
+
+    df["계약년월"] = df["계약년월"].dt.date
+
+
+def set_columns_round_rate(df: pd.DataFrame):
+    df[["평균(만원)_전세", "평균(만원)_매매"]] = df[
+        ["평균(만원)_전세", "평균(만원)_매매"]
+    ].round(-2)
+
+    df["전세가율(%)"] = df["전세가율(%)"].round(0)
+    df["계약년월"] = df["계약년월"].dt.date
