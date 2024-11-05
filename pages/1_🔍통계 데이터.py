@@ -14,7 +14,7 @@ from servies.insight_service import (
 from topbar import add_topbar
 
 
-def add_metric(
+def add_metrics(
     df_buysell: DataFrame, df_rent: DataFrame, df_buysell_rent_rate: DataFrame
 ):
     col1, col2, col3 = st.columns(3)
@@ -59,8 +59,52 @@ def add_metric(
     )
 
 
+def add_statistics(df: DataFrame):
+    amount_min = ceil(df["평균(만원)"].min())
+    amount_max = ceil(df["평균(만원)"].max())
+    amount_avg = ceil(df["평균(만원)"].mean().round(0))
+
+    count_min = ceil(df["거래량(건)"].min())
+    count_max = ceil(df["거래량(건)"].max())
+    buysell_dong_count = ceil(df["거래량(건)"].mean().round(0))
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.slider(
+            "평균 가격(만원)",
+            value=amount_avg,
+            min_value=amount_min,
+            max_value=amount_max,
+        )
+
+    with col2:
+        st.slider(
+            "거래량(건)",
+            value=buysell_dong_count,
+            min_value=count_min,
+            max_value=count_max,
+        )
+
+
+def add_statistics_rate(df: DataFrame):
+    rate_min = ceil(df["전세가율(%)"].min())
+    rate_max = ceil(df["전세가율(%)"].max())
+    rate_avg = ceil(df["전세가율(%)"].mean().round(0))
+
+    col1, col2 = st.columns(2)
+
+    col1.slider(
+        "전세가율(%)",
+        value=rate_avg,
+        min_value=rate_min,
+        max_value=rate_max,
+    )
+
+
 set_page(st, True)
 
+#### sessions ####
 if "df_buysell" not in st.session_state:
     st.session_state["df_buysell"] = load_buysell_data(
         st.session_state["begin_date"],
@@ -91,76 +135,37 @@ st.header("통계 데이터")
 #### topbar ####
 add_topbar(st)
 
+#### load data ####
 df_buysell = st.session_state["df_buysell"].copy()
 df_rent = st.session_state["df_rent"].copy()
 df_buysell_rent_rate = st.session_state["df_buysell_rent_rate"].copy()
-add_metric(df_buysell, df_rent, df_buysell_rent_rate)
+add_metrics(df_buysell, df_rent, df_buysell_rent_rate)
 
 st.divider()
+
+set_columns_round(df_buysell)
+set_columns_round(df_rent)
+set_columns_round_rate(df_buysell_rent_rate)
 
 tab1, tab2, tab3 = st.tabs(["매매 시장", "전세 시장", "전세가율"])
 
 with tab1:
-    set_columns_round(df_buysell)
+    st.markdown("<br />", unsafe_allow_html=True)
+    add_statistics(df_buysell)
+    st.markdown("<br />", unsafe_allow_html=True)
     st.dataframe(df_buysell, use_container_width=True)
 
 with tab2:
-    set_columns_round(df_rent)
+    st.markdown("<br />", unsafe_allow_html=True)
+    add_statistics(df_rent)
+    st.markdown("<br />", unsafe_allow_html=True)
     st.dataframe(df_rent, use_container_width=True)
 
 with tab3:
-    set_columns_round_rate(df_buysell_rent_rate)
+    st.markdown("<br />", unsafe_allow_html=True)
+    add_statistics_rate(df_buysell_rent_rate)
+    st.markdown("<br />", unsafe_allow_html=True)
     st.dataframe(df_buysell_rent_rate, use_container_width=True)
-
-st.divider()
-
-st.subheader(
-    f"{st.session_state["selected_gu"]} {st.session_state["selected_dong"]} 의 {st.session_state["year_from_now"]} 현황"
-)
-
-#### load gu only data ####
-gu_tab1, gu_tab2, gu_tab3 = st.columns(3)
-
-df_buysell_gu = load_buysell_data(
-    st.session_state["begin_date"],
-    st.session_state["selected_si"],
-    st.session_state["selected_gu"],
-    None,
-    st.session_state["selected_built_year"],
-    st.session_state["selected_size"],
-)
-
-df_rent_gu = load_rent_data(
-    st.session_state["begin_date"],
-    st.session_state["selected_si"],
-    st.session_state["selected_gu"],
-    None,
-    st.session_state["selected_built_year"],
-    st.session_state["selected_size"],
-)
-
-df_buysell_rent_rate_gu = load_buysell_rent_rate_data(df_buysell_gu, df_rent_gu)
-
-with gu_tab1:
-    set_columns_round(df_buysell_gu)
-    buysell_gu_min = ceil(df_buysell_gu["평균(만원)"].min())
-    buysell_gu_max = ceil(df_buysell_gu["평균(만원)"].max())
-    buysell_dong_mean = ceil(df_buysell["평균(만원)"].mean().round(0))
-    st.slider(
-        "평균(만원)",
-        value=buysell_dong_mean,
-        min_value=buysell_gu_min,
-        max_value=buysell_gu_max,
-        help=f"`{st.session_state["selected_gu"]}` 에서 `{st.session_state["selected_dong"]}` 의 평균가의 위치를 나타냅니다.",
-    )
-
-with gu_tab2:
-    set_columns_round(df_rent_gu)
-    st.dataframe(df_rent_gu, use_container_width=True)
-
-with gu_tab3:
-    set_columns_round_rate(df_buysell_rent_rate_gu)
-    st.dataframe(df_buysell_rent_rate_gu, use_container_width=True)
 
 st.divider()
 
