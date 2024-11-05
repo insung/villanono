@@ -11,7 +11,7 @@ def __get_insight_data(
     begin_date: datetime,
     selected_si: str,
     selected_gu: str,
-    selected_dong: str,
+    selected_dong: str | None,
     selected_built_year: datetime | None,
     selected_size: str | None,
 ) -> pd.DataFrame:
@@ -67,7 +67,7 @@ def load_buysell_data(
     begin_date: datetime,
     selected_si: str,
     selected_gu: str,
-    selected_dong: str,
+    selected_dong: str | None,
     selected_built_year: datetime | None,
     selected_size: str | None,
 ) -> pd.DataFrame:
@@ -93,7 +93,7 @@ def load_rent_data(
     begin_date: datetime,
     selected_si: str,
     selected_gu: str,
-    selected_dong: str,
+    selected_dong: str | None,
     selected_built_year: datetime | None,
     selected_size: str | None,
 ) -> pd.DataFrame:
@@ -128,7 +128,7 @@ def load_buysell_rent_rate_data(
     ) * 100
 
     df_merged = df_merged[
-        ["계약년월", "평균(만원)_전세", "평균(만원)_매매", "전세가율(%)"]
+        ["계약년월", "평균(만원)_매매", "평균(만원)_전세", "전세가율(%)"]
     ]
 
     return df_merged

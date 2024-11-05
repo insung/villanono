@@ -112,6 +112,55 @@ with tab3:
     set_columns_round_rate(df_buysell_rent_rate)
     st.dataframe(df_buysell_rent_rate, use_container_width=True)
 
+st.divider()
+
+st.subheader(
+    f"{st.session_state["selected_gu"]} {st.session_state["selected_dong"]} 의 {st.session_state["year_from_now"]} 현황"
+)
+
+#### load gu only data ####
+gu_tab1, gu_tab2, gu_tab3 = st.columns(3)
+
+df_buysell_gu = load_buysell_data(
+    st.session_state["begin_date"],
+    st.session_state["selected_si"],
+    st.session_state["selected_gu"],
+    None,
+    st.session_state["selected_built_year"],
+    st.session_state["selected_size"],
+)
+
+df_rent_gu = load_rent_data(
+    st.session_state["begin_date"],
+    st.session_state["selected_si"],
+    st.session_state["selected_gu"],
+    None,
+    st.session_state["selected_built_year"],
+    st.session_state["selected_size"],
+)
+
+df_buysell_rent_rate_gu = load_buysell_rent_rate_data(df_buysell_gu, df_rent_gu)
+
+with gu_tab1:
+    set_columns_round(df_buysell_gu)
+    buysell_gu_min = ceil(df_buysell_gu["평균(만원)"].min())
+    buysell_gu_max = ceil(df_buysell_gu["평균(만원)"].max())
+    buysell_dong_mean = ceil(df_buysell["평균(만원)"].mean().round(0))
+    st.slider(
+        "평균(만원)",
+        value=buysell_dong_mean,
+        min_value=buysell_gu_min,
+        max_value=buysell_gu_max,
+        help=f"`{st.session_state["selected_gu"]}` 에서 `{st.session_state["selected_dong"]}` 의 평균가의 위치를 나타냅니다.",
+    )
+
+with gu_tab2:
+    set_columns_round(df_rent_gu)
+    st.dataframe(df_rent_gu, use_container_width=True)
+
+with gu_tab3:
+    set_columns_round_rate(df_buysell_rent_rate_gu)
+    st.dataframe(df_buysell_rent_rate_gu, use_container_width=True)
 
 st.divider()
 
