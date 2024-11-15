@@ -70,12 +70,16 @@ def add_statistics(df: DataFrame):
 
     col1, col2 = st.columns(2)
 
+    year_from_now = st.session_state["year_from_now"]
+    selected_dong = st.session_state["selected_dong"]
+
     with col1:
         st.slider(
             "평균 가격(만원)",
             value=amount_avg,
             min_value=amount_min,
             max_value=amount_max,
+            help=f"지난 {year_from_now} 간 {selected_dong} 의 평균 가격",
         )
 
     with col2:
@@ -84,6 +88,7 @@ def add_statistics(df: DataFrame):
             value=buysell_dong_count,
             min_value=count_min,
             max_value=count_max,
+            help=f"지난 {year_from_now} 간 {selected_dong} 의 거래량",
         )
 
 
