@@ -6,8 +6,8 @@ COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
 COPY . /app/
-COPY data/temp4 /app/data/temp3
 COPY data/output_divisions /app/data/output_divisions
+COPY data/temp4 /app/data/temp3
 
 EXPOSE 8501
 

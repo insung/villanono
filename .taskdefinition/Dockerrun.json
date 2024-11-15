@@ -2,7 +2,7 @@
     "containerDefinitions": [
         {
             "name": "villanono",
-            "image": "468917192189.dkr.ecr.ap-northeast-2.amazonaws.com/villanono:241105-01",
+            "image": "468917192189.dkr.ecr.ap-northeast-2.amazonaws.com/villanono:241116-02",
             "cpu": 256,
             "memoryReservation": 512,
             "portMappings": [
