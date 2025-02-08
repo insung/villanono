@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 import pandas as pd
 
-from etl.extract import extract_division_data
+from etl.insight_buysell_etl import extract_division_data
 
 
 class TestExtractDivisionData(unittest.TestCase):

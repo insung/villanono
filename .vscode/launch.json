@@ -13,10 +13,20 @@
             "justMyCode": true
         },
         {
-            "name": "ETL Run",
+            "name": "BuySell ETL Run",
             "type": "debugpy",
             "request": "launch",
-            "program": "etl/run.py",
+            "program": "etl/buysell_etl.py",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "Rent ETL Run",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "etl/rent_etl.py",
             "console": "integratedTerminal",
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
