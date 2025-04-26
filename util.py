@@ -2,6 +2,7 @@ import os
 from genericpath import exists
 
 import pandas
+import requests
 from pandas import DataFrame, Series
 
 
@@ -122,25 +123,20 @@ def read_divisions() -> dict:
 
 
 def get_si_options() -> list:
-    return __division_df["시"].unique().tolist()
+    response = requests.get("http://localhost:5210/api/Location/Si")
+    return response.json()
 
 
 def get_gu_options(si: str = "서울특별시") -> list:
-    return (
-        __division_df.query(f"시 == '{si}'")
-        .sort_values(by="군", ascending=True)["군"]
-        .unique()
-        .tolist()
-    )
+    response = requests.get(f"http://localhost:5210/api/Location/Si/{si}/Gu")
+    gu_list: list = response.json()
+    return sorted(gu_list)
 
 
-def get_dong_options(gu: str = "서대문구") -> list:
-    return (
-        __division_df.query(f"군 == '{gu}'")
-        .sort_values(by="구", ascending=True)["구"]
-        .unique()
-        .tolist()
-    )
+def get_dong_options(si: str = "서울특별시", gu: str = "서대문구") -> list:
+    response = requests.get(f"http://localhost:5210/api/Location/Si/{si}/Gu/{gu}/Dong")
+    dong_list: list = response.json()
+    return sorted(dong_list)
 
 
 def makedir_if_not_exists(path: str):

@@ -71,7 +71,7 @@ def add_topbar(st: streamlit):
             index=st.session_state["gu_list"].index(st.session_state["selected_gu"]),
         )
         st.session_state["dong_list"] = get_dong_options(
-            st.session_state["selected_gu"]
+            st.session_state["selected_si"], st.session_state["selected_gu"]
         )
 
     with r1_col3:
