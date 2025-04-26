@@ -24,9 +24,9 @@ with st.expander("매매 시장", expanded=True):
         st.session_state["year_from_now"],
     )
     st.page_link(
-        "pages/1_🔍통계 데이터.py",
+        "pages/1_🧐통계 데이터.py",
         label="데이터 자세히 보기",
-        icon="🔍",
+        icon="🧐",
         use_container_width=True,
     )
 
@@ -38,17 +38,17 @@ with st.expander("전세 시장", expanded=True):
         st.session_state["year_from_now"],
     )
     st.page_link(
-        "pages/1_🔍통계 데이터.py",
+        "pages/1_🧐통계 데이터.py",
         label="데이터 자세히 보기",
-        icon="🔍",
+        icon="🧐",
         use_container_width=True,
     )
 
 with st.expander("전세가율", expanded=True):
     load_chart_buysell_rent_rate(st, st.session_state["df_buysell_rent_rate"])
     st.page_link(
-        "pages/1_🔍통계 데이터.py",
+        "pages/1_🧐통계 데이터.py",
         label="데이터 자세히 보기",
-        icon="🔍",
+        icon="🧐",
         use_container_width=True,
     )

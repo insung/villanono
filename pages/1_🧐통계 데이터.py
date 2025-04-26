@@ -1,5 +1,6 @@
 from math import ceil
 
+import numpy
 import streamlit as st
 from pandas import DataFrame
 
@@ -24,7 +25,12 @@ def add_metrics(
     avg_buysell_amount = ceil(df_buysell["평균(만원)"].mean().round(-2))
     min_buysell_amount = ceil(df_buysell["최소(만원)"].mean().round(-2))
     max_buysell_amount = ceil(df_buysell["최대(만원)"].mean().round(-2))
-    avg_buysell_rate = ceil(df_buysell_rent_rate["전세가율(%)"].mean().round(0))
+    avg_buysell_rate_mean = (
+        0
+        if numpy.isnan(df_buysell_rent_rate["전세가율(%)"].mean())
+        else df_buysell_rent_rate["전세가율(%)"].mean()
+    )
+    avg_buysell_rate = ceil(round(avg_buysell_rate_mean))
 
     avg_rent_count = ceil(df_rent["거래량(건)"].mean().round(0))
     avg_rent_amount = ceil(df_rent["평균(만원)"].mean().round(-2))
@@ -74,37 +80,66 @@ def add_statistics(df: DataFrame):
     selected_dong = st.session_state["selected_dong"]
 
     with col1:
-        st.slider(
-            "평균 가격(만원)",
-            value=amount_avg,
-            min_value=amount_min,
-            max_value=amount_max,
-            help=f"지난 {year_from_now} 간 {selected_dong} 의 평균 가격",
-        )
+        if amount_min == amount_max:
+            st.slider(
+                "평균 가격(만원)",
+                value=amount_avg,
+                max_value=amount_max,
+                help=f"지난 {year_from_now} 간 {selected_dong} 의 평균 가격",
+            )
+        else:
+            st.slider(
+                "평균 가격(만원)",
+                value=amount_avg,
+                min_value=amount_min,
+                max_value=amount_max,
+                help=f"지난 {year_from_now} 간 {selected_dong} 의 평균 가격",
+            )
 
     with col2:
-        st.slider(
-            "거래량(건)",
-            value=buysell_dong_count,
-            min_value=count_min,
-            max_value=count_max,
-            help=f"지난 {year_from_now} 간 {selected_dong} 의 거래량",
-        )
+        if count_min == count_max:
+            st.slider(
+                "거래량(건)",
+                value=buysell_dong_count,
+                max_value=count_max,
+                help=f"지난 {year_from_now} 간 {selected_dong} 의 거래량",
+            )
+        else:
+            st.slider(
+                "거래량(건)",
+                value=buysell_dong_count,
+                min_value=count_min,
+                max_value=count_max,
+                help=f"지난 {year_from_now} 간 {selected_dong} 의 거래량",
+            )
 
 
 def add_statistics_rate(df: DataFrame):
-    rate_min = ceil(df["전세가율(%)"].min())
-    rate_max = ceil(df["전세가율(%)"].max())
-    rate_avg = ceil(df["전세가율(%)"].mean().round(0))
+    rate_min = ceil(
+        0 if numpy.isnan(df["전세가율(%)"].min()) else df["전세가율(%)"].min()
+    )
+    rate_max = ceil(
+        0 if numpy.isnan(df["전세가율(%)"].max()) else df["전세가율(%)"].max()
+    )
+    rate_avg_mean = (
+        0 if numpy.isnan(df["전세가율(%)"].mean()) else df["전세가율(%)"].mean()
+    )
+    rate_avg = ceil(round(rate_avg_mean))
 
     col1, col2 = st.columns(2)
 
-    col1.slider(
-        "전세가율(%)",
-        value=rate_avg,
-        min_value=rate_min,
-        max_value=rate_max,
-    )
+    if rate_min == rate_max:
+        col1.slider(
+            "전세가율(%)",
+            value=rate_avg,
+        )
+    else:
+        col1.slider(
+            "전세가율(%)",
+            value=rate_avg,
+            min_value=rate_min,
+            max_value=rate_max,
+        )
 
 
 set_page(st, True)

@@ -73,7 +73,7 @@ def load_buysell_data(
 ) -> pd.DataFrame:
     file_path_buysell = os.path.join(
         "data",
-        "temp3",
+        "latest",
         "서울특별시",
         f"{selected_gu}_연립다세대(매매).csv",
     )
@@ -99,7 +99,7 @@ def load_rent_data(
 ) -> pd.DataFrame:
     file_path_rent = os.path.join(
         "data",
-        "temp3",
+        "latest",
         "서울특별시",
         f"{selected_gu}_연립다세대(전월세).csv",
     )
