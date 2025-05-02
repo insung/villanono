@@ -3,7 +3,7 @@ import datetime
 import streamlit
 
 from servies.insight_service import (
-    load_buysell_data,
+    load_buysell_data_with_api,
     load_buysell_rent_rate_data,
     load_rent_data,
 )
@@ -131,7 +131,7 @@ def add_topbar(st: streamlit):
         ]
 
     #### load data ####
-    st.session_state["df_buysell"] = load_buysell_data(
+    st.session_state["df_buysell"] = load_buysell_data_with_api(
         st.session_state["begin_date"],
         st.session_state["selected_si"],
         st.session_state["selected_gu"],

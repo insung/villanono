@@ -2,6 +2,7 @@ import os
 from datetime import datetime
 
 import pandas as pd
+import requests
 
 from servies.insight_query import get_insight_query
 
@@ -87,6 +88,47 @@ def load_buysell_data(
         selected_size,
     )
     return df_buysell
+
+
+def load_buysell_data_with_api(
+    begin_date: datetime,
+    selected_si: str,
+    selected_gu: str,
+    selected_dong: str | None,
+    selected_built_year: datetime | None,
+    selected_size: str | None,
+) -> pd.DataFrame:
+    url = "http://localhost:5210//api/Report/Insight/Monthly"
+    params = {
+        "dataType": "BuySell",
+        "beginYearMonth": begin_date.strftime("%Y%m"),
+        "endYearMonth": datetime.today().strftime("%Y%m"),
+        "si": selected_si,
+        "gu": selected_gu,
+        "dong": selected_dong,
+    }
+    header = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+    }
+    response = requests.post(headers=header, url=url, params=params)
+    respose_json = response.json()
+    df = pd.DataFrame(respose_json["items"])
+    df.columns = [
+        "계약년월",
+        "거래량(건)",
+        "평균(만원)",
+        "최소(만원)",
+        "최대(만원)",
+        "합계(만원)",
+        "25%",
+        "50%",
+        "75%",
+    ]
+
+    df["평균(만원)"] = df["평균(만원)"].round(2)
+    df["계약년월"] = pd.to_datetime(df["계약년월"], format="%Y%m")
+    return df
 
 
 def load_rent_data(
