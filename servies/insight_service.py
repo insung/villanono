@@ -90,6 +90,15 @@ def load_buysell_data(
     return df_buysell
 
 
+__size_ranges = [0, 33, 66, 99, 1653]
+__size_labels = [
+    "10평대",
+    "20평대",
+    "30평대",
+    "40평대 이상",
+]
+
+
 def load_buysell_data_with_api(
     begin_date: datetime,
     selected_si: str,
@@ -99,6 +108,19 @@ def load_buysell_data_with_api(
     selected_size: str | None,
 ) -> pd.DataFrame:
     url = "http://localhost:5210//api/Report/Insight/Monthly"
+
+    exclusive_area_begin: int | None = None
+    exclusive_area_end: int | None = None
+    construction_year: int | None = None
+
+    if selected_size:
+        selected_size_index = __size_labels.index(selected_size)
+        exclusive_area_begin = __size_ranges[selected_size_index]
+        exclusive_area_end = __size_ranges[selected_size_index + 1]
+
+    if selected_built_year:
+        construction_year = selected_built_year.year
+
     params = {
         "dataType": "BuySell",
         "beginYearMonth": begin_date.strftime("%Y%m"),
@@ -106,6 +128,9 @@ def load_buysell_data_with_api(
         "si": selected_si,
         "gu": selected_gu,
         "dong": selected_dong,
+        "exclusiveAreaBegin": exclusive_area_begin,
+        "exclusiveAreaEnd": exclusive_area_end,
+        "constructionYear": construction_year,
     }
     header = {
         "accept": "application/json",
