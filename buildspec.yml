@@ -13,9 +13,9 @@ phases:
   post_build:
     commands:
       - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/villanono:${IMAGE_TAG}
-      - sed 's/%ACCOUNT_ID%/${ACCOUNT_ID}/g' imagedefinitions.json
-      - sed 's/%AWS_REGION%/${AWS_REGION}/g' imagedefinitions.json
-      - sed 's/%IMAGE_TAG%/${IMAGE_TAG}/g' imagedefinitions.json
+      - sed "s/%ACCOUNT_ID%/${ACCOUNT_ID}/g" imagedefinitions.json
+      - sed "s/%AWS_REGION%/${AWS_REGION}/g" imagedefinitions.json
+      - sed "s/%IMAGE_TAG%/${IMAGE_TAG}/g" imagedefinitions.json
 
 artifacts:
   files:
