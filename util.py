@@ -104,12 +104,11 @@ def get_dataframe_for_insight(
     return result
 
 
-__division_df = pandas.read_csv(
-    os.path.join("data", "output_divisions", "division.csv")
-)
-
-
 def read_divisions() -> dict:
+    __division_df = pandas.read_csv(
+        os.path.join("data", "output_divisions", "division.csv")
+    )
+
     result = {}
 
     for si, gu, dong in zip(
