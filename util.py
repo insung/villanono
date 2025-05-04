@@ -5,6 +5,8 @@ import pandas
 import requests
 from pandas import DataFrame, Series
 
+backend_url = os.getenv("villanono-backend-url")
+
 
 def filter_by_yyyyMM(df: DataFrame, yyyyMM: int, rent_type: str = "전세") -> Series:
     filtered = df[(df["계약년월"] == yyyyMM) & (df["전월세구분"] == rent_type)]
@@ -123,18 +125,18 @@ def read_divisions() -> dict:
 
 
 def get_si_options() -> list:
-    response = requests.get("http://localhost:5210/api/Location/Si")
+    response = requests.get(f"{backend_url}/api/Location/Si")
     return response.json()
 
 
 def get_gu_options(si: str = "서울특별시") -> list:
-    response = requests.get(f"http://localhost:5210/api/Location/Si/{si}/Gu")
+    response = requests.get(f"{backend_url}/api/Location/Si/{si}/Gu")
     gu_list: list = response.json()
     return sorted(gu_list)
 
 
 def get_dong_options(si: str = "서울특별시", gu: str = "서대문구") -> list:
-    response = requests.get(f"http://localhost:5210/api/Location/Si/{si}/Gu/{gu}/Dong")
+    response = requests.get(f"{backend_url}/api/Location/Si/{si}/Gu/{gu}/Dong")
     dong_list: list = response.json()
     return sorted(dong_list)
 

@@ -9,6 +9,9 @@
             "type": "debugpy",
             "request": "launch",
             "module": "streamlit",
+            "env": {
+                "villanono-backend-url": "http://localhost:5210"
+            },
             "args": ["run", "📈인사이트.py", "--server.headless", "true"],
             "justMyCode": true
         },

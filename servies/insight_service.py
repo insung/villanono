@@ -6,6 +6,8 @@ import requests
 
 from servies.insight_query import get_insight_query
 
+backend_url = os.getenv("villanono-backend-url")
+
 
 def __get_insight_data(
     file_path: str,
@@ -108,7 +110,7 @@ def load_buysell_data_with_api(
     selected_built_year: datetime | None,
     selected_size: str | None,
 ) -> pd.DataFrame:
-    url = "http://localhost:5210//api/Report/Insight/Monthly"
+    url = f"{backend_url}/api/Report/Insight/Monthly"
 
     exclusive_area_begin: int | None = None
     exclusive_area_end: int | None = None
