@@ -1,4 +1,0 @@
-containerDefinitions:
-  - name: villanono
-    imageUri: "%ACCOUNT_ID%.dkr.ecr.%AWS_REGION%.amazonaws.com/villanono:%IMAGE_TAG%"
-  
