@@ -12,14 +12,15 @@
                 }
             ],
             "essential": true,
-            "environment": [],
+            "environment": [{
+                "name": "villanono-backend-url",
+                "value": "https://backend.villanono.co.kr"
+            }],
             "environmentFiles": [],
             "mountPoints": [],
             "volumesFrom": [],
             "systemControls": [],
-            "links": [
-                "villanono-backend"
-            ]
+            "links": []
         }
     ],
     "family": "villanono",
