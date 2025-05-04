@@ -100,6 +100,7 @@ __size_labels = [
 
 
 def load_buysell_data_with_api(
+    data_type: str,
     begin_date: datetime,
     selected_si: str,
     selected_gu: str,
@@ -122,7 +123,7 @@ def load_buysell_data_with_api(
         construction_year = selected_built_year.year
 
     params = {
-        "dataType": "BuySell",
+        "dataType": data_type,
         "beginYearMonth": begin_date.strftime("%Y%m"),
         "endYearMonth": datetime.today().strftime("%Y%m"),
         "si": selected_si,
@@ -149,6 +150,7 @@ def load_buysell_data_with_api(
         "25%",
         "50%",
         "75%",
+        "표준편차(만원)",
     ]
 
     df["평균(만원)"] = df["평균(만원)"].round(2)

@@ -5,7 +5,6 @@ import streamlit
 from servies.insight_service import (
     load_buysell_data_with_api,
     load_buysell_rent_rate_data,
-    load_rent_data,
 )
 from util import get_dong_options
 
@@ -132,6 +131,7 @@ def add_topbar(st: streamlit):
 
     #### load data ####
     st.session_state["df_buysell"] = load_buysell_data_with_api(
+        "BuySell",
         st.session_state["begin_date"],
         st.session_state["selected_si"],
         st.session_state["selected_gu"],
@@ -140,7 +140,8 @@ def add_topbar(st: streamlit):
         st.session_state["selected_size"],
     )
 
-    st.session_state["df_rent"] = load_rent_data(
+    st.session_state["df_rent"] = load_buysell_data_with_api(
+        "Rent",
         st.session_state["begin_date"],
         st.session_state["selected_si"],
         st.session_state["selected_gu"],
