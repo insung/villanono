@@ -6,9 +6,8 @@ from pandas import DataFrame
 
 from page_config import set_page
 from servies.insight_service import (
-    load_buysell_data,
+    load_buysell_data_with_api,
     load_buysell_rent_rate_data,
-    load_rent_data,
     set_columns_round,
     set_columns_round_rate,
 )
@@ -146,7 +145,8 @@ set_page(st, True)
 
 #### sessions ####
 if "df_buysell" not in st.session_state:
-    st.session_state["df_buysell"] = load_buysell_data(
+    st.session_state["df_buysell"] = load_buysell_data_with_api(
+        "BuySell",
         st.session_state["begin_date"],
         st.session_state["selected_si"],
         st.session_state["selected_gu"],
@@ -156,7 +156,8 @@ if "df_buysell" not in st.session_state:
     )
 
 if "df_rent" not in st.session_state:
-    st.session_state["df_rent"] = load_rent_data(
+    st.session_state["df_rent"] = load_buysell_data_with_api(
+        "Rent",
         st.session_state["begin_date"],
         st.session_state["selected_si"],
         st.session_state["selected_gu"],
