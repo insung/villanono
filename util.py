@@ -124,18 +124,18 @@ def read_divisions() -> dict:
 
 
 def get_si_options() -> list:
-    response = requests.get(f"{backend_url}/api/Location/Si")
+    response = requests.get(f"{backend_url}/api/Region/Si")
     return response.json()
 
 
 def get_gu_options(si: str = "서울특별시") -> list:
-    response = requests.get(f"{backend_url}/api/Location/Si/{si}/Gu")
+    response = requests.get(f"{backend_url}/api/Region/Si/{si}/Gu")
     gu_list: list = response.json()
     return sorted(gu_list)
 
 
 def get_dong_options(si: str = "서울특별시", gu: str = "서대문구") -> list:
-    response = requests.get(f"{backend_url}/api/Location/Si/{si}/Gu/{gu}/Dong")
+    response = requests.get(f"{backend_url}/api/Region/Si/{si}/Gu/{gu}/Dong")
     dong_list: list = response.json()
     return sorted(dong_list)
 
@@ -143,3 +143,22 @@ def get_dong_options(si: str = "서울특별시", gu: str = "서대문구") -> l
 def makedir_if_not_exists(path: str):
     if not os.path.exists(path):
         os.makedirs(path)
+
+
+def get_geocodes(si: str, gu: str, road_name: str):
+    response = requests.get(
+        f"{backend_url}/api/Geocode/Search",
+        params={
+            "si": si,
+            "gu": gu,
+            "search": road_name,
+            "addressType": "road",
+        },
+    )
+
+    if response.ok:
+        locations = response.json()
+    else:
+        locations = []
+
+    return locations
