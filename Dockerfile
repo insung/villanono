@@ -11,4 +11,4 @@ COPY . /app/
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "📈인사이트.py"]
+CMD ["streamlit", "run", "🗺️메인페이지.py"]

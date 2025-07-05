@@ -26,6 +26,13 @@ def init_session_variables(st: streamlit):
     __init_if_empty(st, "selected_built_year", None)
     __init_if_empty(st, "built_year_choice", "전체")
 
+    __init_if_empty(st, "selected_datatype", ["매매", "전세", "월세"])
+
+    __init_if_empty(st, "last_moved_center", None)
+    __init_if_empty(st, "last_moved_si_gu_dong", None)
+    __init_if_empty(st, "locations", [])
+    __init_if_empty(st, "folium_data", None)
+
 
 def __init_if_empty(st: streamlit, key: str, value: Any):
     if key not in st.session_state:

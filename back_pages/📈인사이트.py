@@ -1,8 +1,8 @@
 import streamlit as st
-
-from page_config import set_page
-from servies.insight_chart import load_chart, load_chart_buysell_rent_rate
 from topbar import add_topbar
+
+from components.page_config import set_page
+from servies.insight_chart import load_chart, load_chart_buysell_rent_rate
 
 #### page config ####
 set_page(st, False)
