@@ -3,15 +3,15 @@ from math import ceil
 import numpy
 import streamlit as st
 from pandas import DataFrame
+from topbar import add_topbar
 
-from page_config import set_page
+from components.page_config import set_page
 from servies.insight_service import (
     load_buysell_data_with_api,
     load_buysell_rent_rate_data,
     set_columns_round,
     set_columns_round_rate,
 )
-from topbar import add_topbar
 
 
 def add_metrics(

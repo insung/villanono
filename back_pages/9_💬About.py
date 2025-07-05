@@ -1,7 +1,7 @@
 import streamlit as st
-
-from page_config import set_page
 from sidebar import set_sidebar
+
+from components.page_config import set_page
 
 #### page config ####
 set_page(st, False)

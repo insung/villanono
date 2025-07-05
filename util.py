@@ -145,14 +145,14 @@ def makedir_if_not_exists(path: str):
         os.makedirs(path)
 
 
-def get_geocodes(si: str, gu: str, road_name: str):
+def get_geocodes(si: str, gu: str, dong: str) -> list:
     response = requests.get(
         f"{backend_url}/api/Geocode/Search",
         params={
             "si": si,
             "gu": gu,
-            "search": road_name,
-            "addressType": "road",
+            "search": dong,
+            "addressType": "parcel",
         },
     )
 

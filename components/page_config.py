@@ -1,6 +1,6 @@
 import streamlit
 
-from session_variables import init_session_variables
+from components.session_variables import init_session_variables
 
 
 def set_page(st: streamlit, wide: bool, sidebar_expand: bool = True):
@@ -11,6 +11,7 @@ def set_page(st: streamlit, wide: bool, sidebar_expand: bool = True):
         page_icon="🚀",
         layout=layout,
         initial_sidebar_state=sidebar_option,
+        menu_items=None,
     )
 
     init_session_variables(st)

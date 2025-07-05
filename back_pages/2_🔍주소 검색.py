@@ -1,6 +1,6 @@
 import streamlit as st
 
-from page_config import set_page
+from components.page_config import set_page
 
 set_page(st, False)
 
