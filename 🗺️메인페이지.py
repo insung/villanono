@@ -153,9 +153,9 @@ if locs:  # locations 데이터가 있을 경우에만 마커 추가
 # - key: 지도 컴포넌트의 고유 식별자를 제공합니다. 이 키가 변경되면 지도가 다시 그려집니다.
 #   여기서는 locations의 길이와 선택된 시/구/동을 조합하여 키를 생성하여,
 #   검색 결과나 지역 선택이 변경될 때만 지도가 업데이트되도록 합니다.
-st_folium(
+map_data = st_folium(
     map_to_render,
     width="100%",  # 지도의 너비를 100%로 설정
-    returned_objects=None,
+    # returned_objects=None,
     key=f"folium_map_{len(locs)}_{st.session_state.selected_si}_{st.session_state.selected_gu}_{st.session_state.selected_dong}",  # 동적 키
 )
