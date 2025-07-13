@@ -9,10 +9,11 @@
             "type": "debugpy",
             "request": "launch",
             "module": "streamlit",
+            "python": "${workspaceFolder}/.venv/Scripts/python.exe",
             "env": {
                 "villanono-backend-url": "http://localhost:5210"
             },
-            "args": ["run", "🗺️메인페이지.py", "--server.headless", "true"],
+            "args": ["run", "app.py", "--server.headless", "true"],
             "justMyCode": true
         },
         {

@@ -1,18 +1,31 @@
-__pycache__
-.taskdefinition
-.venv
-.vscode
-tests
-test_etc
-
-data/*
-!data/temp3
-!data/temp4
-!data/output_divisions
-back_pages
-etl
-
-.dockerignore
-.gitignore
+# Docker specific files
 Dockerfile
-Readme.md
+.dockerignore
+
+# Git version control
+.git
+.gitignore
+
+# IDE and editor configuration
+.idea/
+.vscode/
+*.swp
+
+# Python virtual environments and cache
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+
+# AI Assistant & other project files
+.aiexclude
+etl/
+test_etc/
+data/
+*.csv
+*.log

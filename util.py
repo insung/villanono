@@ -3,6 +3,8 @@ from genericpath import exists
 
 import pandas
 import requests
+import streamlit as st
+from geopy.geocoders import Nominatim
 from pandas import DataFrame, Series
 
 backend_url = os.getenv("villanono-backend-url")
@@ -162,3 +164,33 @@ def get_geocodes(si: str, gu: str, dong: str) -> list:
         locations = []
 
     return locations
+
+
+@st.cache_data(ttl=3600)  # 1시간 동안 캐시하여 불필요한 API 호출 방지
+def get_si_gu_dong_from_coords(coords: tuple) -> tuple | None:
+    """
+    좌표(위도, 경도)를 주소(시, 구, 동) 튜플로 변환합니다.
+    Nominatim을 사용하여 역 지오코딩을 수행합니다.
+    """
+    if not coords:
+        return None
+
+    try:
+        geolocator = Nominatim(user_agent="villanono_app", timeout=10)
+        location = geolocator.reverse(coords, language="ko")
+
+        if location and location.raw.get("address"):
+            addr = location.raw["address"]
+            si = addr.get("city", addr.get("state", ""))
+            gu = addr.get("borough", addr.get("county", ""))
+            # '동'은 quarter, suburb, neighbourhood 등 다양하게 반환될 수 있습니다.
+            dong = addr.get(
+                "quarter", addr.get("suburb", addr.get("neighbourhood", ""))
+            )
+            return (si, gu, dong)
+    except Exception as e:
+        # 타임아웃 또는 API 오류 처리
+        print(f"Geocoding error: {e}")
+        return None
+
+    return None

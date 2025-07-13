@@ -1,0 +1,15 @@
+# Python/IDE generated files
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.idea/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Large data and log files
+data/
+*.csv
+*.log

@@ -112,36 +112,45 @@ def load_buysell_data_with_api(
 ) -> pd.DataFrame:
     url = f"{backend_url}/api/Report/Insight/Monthly"
 
-    exclusive_area_begin: int | None = None
-    exclusive_area_end: int | None = None
-    construction_year: int | None = None
+    payload = {
+        "dataType": data_type,
+        "beginYearMonth": int(begin_date.strftime("%Y%m")),
+        "endYearMonth": int(datetime.today().strftime("%Y%m")),
+        "si": selected_si,
+        "gu": selected_gu,
+    }
+
+    if selected_dong:
+        payload["dong"] = selected_dong
 
     if selected_size:
         selected_size_index = __size_labels.index(selected_size)
-        exclusive_area_begin = __size_ranges[selected_size_index]
-        exclusive_area_end = __size_ranges[selected_size_index + 1]
+        payload["beginExclusiveArea"] = float(__size_ranges[selected_size_index])
+        payload["endExclusiveArea"] = float(__size_ranges[selected_size_index + 1])
 
     if selected_built_year:
-        construction_year = selected_built_year.year
+        payload["beginConstructYear"] = selected_built_year.year
 
-    params = {
-        "dataType": data_type,
-        "beginYearMonth": begin_date.strftime("%Y%m"),
-        "endYearMonth": datetime.today().strftime("%Y%m"),
-        "si": selected_si,
-        "gu": selected_gu,
-        "dong": selected_dong,
-        "exclusiveAreaBegin": exclusive_area_begin,
-        "exclusiveAreaEnd": exclusive_area_end,
-        "constructionYear": construction_year,
-    }
     header = {
         "accept": "application/json",
         "Content-Type": "application/json",
     }
-    response = requests.post(headers=header, url=url, params=params)
+    response = requests.post(headers=header, url=url, json=payload)
+
+    if not response.ok:
+        # 에러 발생 시 빈 데이터프레임 반환
+        return pd.DataFrame()
+
     respose_json = response.json()
+
+    if not respose_json or "items" not in respose_json or not respose_json["items"]:
+        return pd.DataFrame()
+
     df = pd.DataFrame(respose_json["items"])
+
+    if df.empty:
+        return df
+
     df.columns = [
         "계약년월",
         "거래량(건)",

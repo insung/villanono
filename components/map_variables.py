@@ -17,6 +17,12 @@ MAIN_PAGE_STYLE = """
     div[data-testid="stToolbar"] {
         display: none !important;
     }
+
+    /* 사이드바를 축소하는 버튼(<)을 숨깁니다. */
+    div[data-testid="stSidebarCollapseButton"] {
+        margin-top: -100px !important;
+    }
+
     /* 여백만 남아 있을 경우 빈 공간도 제거 */
     .stApp .main {
         padding-top: 0 !important;

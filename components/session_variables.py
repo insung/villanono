@@ -3,6 +3,7 @@ from typing import Any
 
 import streamlit
 
+from components.map_variables import GEOBUK_GOL_RO
 from util import get_dong_options, get_gu_options, get_si_options
 
 
@@ -28,10 +29,12 @@ def init_session_variables(st: streamlit):
 
     __init_if_empty(st, "selected_datatype", ["매매", "전세", "월세"])
 
-    __init_if_empty(st, "last_moved_center", None)
-    __init_if_empty(st, "last_moved_si_gu_dong", None)
+    __init_if_empty(st, "last_moved_center", GEOBUK_GOL_RO)
     __init_if_empty(st, "locations", [])
-    __init_if_empty(st, "folium_data", None)
+
+    __init_if_empty(st, "last_bounds", None)
+    __init_if_empty(st, "last_searched_address", None)
+    __init_if_empty(st, "update_filters_from_map_flag", False)
 
 
 def __init_if_empty(st: streamlit, key: str, value: Any):
