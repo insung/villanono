@@ -6,7 +6,7 @@ today = datetime.today()
 
 #### choices ####
 options_datatype = [("매매", "buysell"), ("전세", "rent"), ("월세", "rent2")]
-choice_datatype = ["매매", "전세", "월세"]
+choice_datatype = ["매매", "전세"]  # , "월세"]
 
 options_size = [
     ("전체", 0),
@@ -75,13 +75,18 @@ def set_detail_filter(st: streamlit):
         # format_func=lambda x: x[0],
     )
     # 가격대 (slide 로)
-    begin_amount, end_amount = st.select_slider(
-        "가격대",
-        options=options_amount,
-        value=(options_amount[4], options_amount[6]),
-        format_func=lambda x: options_amount_label[x],  # 화면엔 라벨만!
+    st.session_state.selected_amount_range = st.select_slider(
+        label="가격대",
+        options=options_amount,  # 가격 옵션 리스트
+        value=(
+            options_amount[1],
+            options_amount[len(options_amount) - 3],
+        ),  # 초기 선택 범위 (1억 ~ 10억)
+        format_func=lambda x: options_amount_label.get(
+            x, str(x)
+        ),  # 숫자 -> 레이블 변환 (없으면 그대로)
+        help="억 단위로 표시됩니다.",
     )
-
     # 면적
     _, st.session_state.selected_size = st.selectbox(
         label="면적",
