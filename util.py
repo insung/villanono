@@ -1,5 +1,7 @@
 import os
+from datetime import date
 from genericpath import exists
+from typing import List
 
 import pandas
 import requests
@@ -164,6 +166,54 @@ def get_geocodes(si: str, gu: str, dong: str) -> list:
         locations = []
 
     return locations
+
+
+def search_with_geocode(
+    data_types: List[str],
+    si: str = "서울특별시",
+    gu: str | None = None,
+    dong: str | None = None,
+    begin_contract_date: date | None = None,
+    end_contract_date: date | None = None,
+    begin_transaction_amount: float | None = None,
+    end_transaction_amount: float | None = None,
+    begin_construct_year: int | None = None,
+    end_construct_year: int | None = None,
+    begin_exclusive_area: float | None = None,
+    end_exclusive_area: float | None = None,
+) -> list:
+    """
+    다양한 필터 조건을 사용하여 지오코딩된 매물 정보를 검색합니다.
+    """
+    url = f"{backend_url}/api/Geocode/SearchWithGeocode"
+
+    params = {
+        "dataTypes": data_types,
+        "si": si,
+    }
+
+    optional_params = {
+        "gu": gu,
+        "dong": dong,
+        "beginContractDate": begin_contract_date.isoformat()
+        if begin_contract_date
+        else None,
+        "endContractDate": end_contract_date.isoformat() if end_contract_date else None,
+        "beginTransactionAmount": begin_transaction_amount,
+        "endTransactionAmount": end_transaction_amount,
+        "beginConstructYear": begin_construct_year,
+        "endConstructYear": end_construct_year,
+        "beginExclusiveArea": begin_exclusive_area,
+        "endExclusiveArea": end_exclusive_area,
+    }
+
+    params.update({k: v for k, v in optional_params.items() if v is not None})
+
+    response = requests.get(url, params=params)
+
+    if response.ok:
+        return response.json()
+    return []
 
 
 @st.cache_data(ttl=3600)  # 1시간 동안 캐시하여 불필요한 API 호출 방지
